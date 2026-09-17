@@ -1,0 +1,83 @@
+# T-0.CICD.02 — the frontend repository's own pipeline.
+#
+# Two jobs, in this order:
+#
+#   checks   `npm run check` on every change — the six properties scripts/check.mjs
+#            asserts, which are this repository's unit of correctness: no database
+#            access and no backend source, the generated types current for the
+#            contract, a typecheck that passes, a removed contract field breaking
+#            the build, the production build, and the client's 401/403 handling
+#   publish  the image T-0.DEPLOY.02 builds, pushed to the registry decided for
+#            this project and tagged with the commit — only if the checks passed
+#
+# `npm ci` and `npm run check` are the whole story: the contract arrives as a
+# **pinned artifact** (`contract/v1/openapi.json`, refreshed by
+# `node scripts/pull-contract.mjs`), never by checking the backend repository out.
+# The two repositories are separate (T-0.STACK.01, §7.5) and this pipeline runs
+# from this one alone — which is also why the check prints "backend checkout not
+# present" here and still passes: that is the property being protected.
+
+name: frontend
+
+on:
+  # Every push, on every branch: a branch push is a change, and the checks are
+  # what a change must pass. Publishing stays on `main` (below), not here.
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege by default; `publish` asks for the one extra it needs.
+permissions:
+  contents: read
+
+env:
+  # `container_registry` — decided 2026-09-18: GitHub's registry, namespace
+  # paws1234, public packages. The backend pipeline uses the same namespace.
+  IMAGE: ghcr.io/paws1234/erpv1-frontend
+
+jobs:
+  checks:
+    name: checks (contract · typecheck · build · client)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # The image is built on node:22 (T-0.DEPLOY.02); the runtime and the
+          # pipeline stay on the same major.
+          node-version: "22"
+          cache: npm
+
+      - name: Install from the committed lock
+        run: npm ci
+
+      - name: Types, build and client checks
+        run: npm run check
+
+  publish:
+    name: publish the image
+    needs: checks
+    # `main`, or a manual run — never a pull request. A failing check fails this
+    # job's need, so a red run publishes nothing.
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Log in to the registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      # Tagged with the commit, so a stack can pull exactly the revision it was
+      # built from (T-0.DEPLOY.03 reads it from FRONTEND_IMAGE). The API base URL
+      # is deliberately NOT baked in: T-0.DEPLOY.02's image reads it at start.
+      - name: Build and push the image
+        run: |
+          set -euo pipefail
+          docker build --tag "$IMAGE:${GITHUB_SHA}" .
+          docker push "$IMAGE:${GITHUB_SHA}"
