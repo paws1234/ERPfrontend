@@ -138,8 +138,6 @@ export interface components {
             id: string;
             /** Lines */
             lines: components["schemas"]["JournalLineOut"][];
-            /** Memo */
-            memo?: string | null;
             /**
              * Posting Date
              * Format: date

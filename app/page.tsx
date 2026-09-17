@@ -75,7 +75,6 @@ export default async function LedgerPage() {
               <th style={{ textAlign: "left" }}>Account</th>
               <th style={{ textAlign: "right" }}>Debit</th>
               <th style={{ textAlign: "right" }}>Credit</th>
-              <th style={{ textAlign: "left" }}>Memo</th>
             </tr>
           </thead>
           <tbody>
@@ -86,7 +85,6 @@ export default async function LedgerPage() {
                   <td>{line.account}</td>
                   <td style={{ textAlign: "right" }}>{line.debit}</td>
                   <td style={{ textAlign: "right" }}>{line.credit}</td>
-                  <td>{entry.memo ?? ""}</td>
                 </tr>
               )),
             )}
