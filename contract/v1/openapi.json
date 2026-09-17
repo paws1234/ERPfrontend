@@ -158,17 +158,6 @@
             "title": "Lines",
             "type": "array"
           },
-          "memo": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Memo"
-          },
           "posting_date": {
             "format": "date",
             "title": "Posting Date",
