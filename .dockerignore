@@ -1,0 +1,11 @@
+# The build context: the sources the image is built from. node_modules and the
+# previous build are recreated inside the image; a local .env never travels.
+.git
+node_modules
+.next
+out
+*.md
+.env
+.env.*
+tests
+npm-debug.log
