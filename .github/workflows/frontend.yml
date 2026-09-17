@@ -16,6 +16,10 @@
 # The two repositories are separate (T-0.STACK.01, §7.5) and this pipeline runs
 # from this one alone — which is also why the check prints "backend checkout not
 # present" here and still passes: that is the property being protected.
+#
+# ponytail: no deploy job here — the stack file lives in the backend repository
+# (T-0.DEPLOY.03), so this pipeline ends at its published image. Upgrade when a
+# per-repository deploy is wanted: pull that compose file in at a pinned tag.
 
 name: frontend
 
