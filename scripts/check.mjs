@@ -91,7 +91,7 @@ if (run("npx", ["tsc", "--noEmit"])) {
 const backup = `${types}.backup`;
 copyFileSync(types, backup);
 try {
-  const stale = readFileSync(types, "utf8").replace(/^\s*memo\?:.*$/m, "");
+  const stale = readFileSync(types, "utf8").replace(/^\s*base_currency:.*$/m, "");
   if (stale === readFileSync(types, "utf8")) {
     problems.push("could not remove a field from the generated types to test the build");
   } else {
