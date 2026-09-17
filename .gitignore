@@ -1,0 +1,12 @@
+# Dependencies and build output — never committed.
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.env
+.env.local
+
+# The contract is committed (it is what this repository is built against), its
+# generated types too.
+!contract/
+!lib/contract.d.ts
