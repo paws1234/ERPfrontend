@@ -4,6 +4,106 @@
  */
 
 export interface paths {
+    "/api/v1/account-mappings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Account Mappings
+         * @description Every key this company has mapped — what a settings screen reads.
+         */
+        get: operations["list_account_mappings_api_v1_account_mappings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account-mappings/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Account Mapping
+         * @description Point one posting key at one account — the configuration a module posts through.
+         */
+        put: operations["put_account_mapping_api_v1_account_mappings__key__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * New Account
+         * @description Create one account in the company's chart of accounts.
+         */
+        post: operations["new_account_api_v1_accounts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/import-coa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Coa
+         * @description Seed the chart from a market's localization pack template (T-0.LOC.01).
+         */
+        post: operations["import_coa_api_v1_accounts_import_coa_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Accounts Tree
+         * @description The company's whole chart, nested, parents before their children.
+         */
+        get: operations["accounts_tree_api_v1_accounts_tree_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/companies/current": {
         parameters: {
             query?: never;
@@ -17,6 +117,57 @@ export interface paths {
          */
         get: operations["current_company_api_v1_companies_current_get"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/currencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Currencies
+         * @description The currencies this installation knows about.
+         */
+        get: operations["list_currencies_api_v1_currencies_get"];
+        put?: never;
+        /**
+         * New Currency
+         * @description Register a currency in the master (T-1.ACCT.05) — global, three letters.
+         */
+        post: operations["new_currency_api_v1_currencies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fx-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Fx Rate
+         * @description The rate for one currency on one date — what a posting would use.
+         */
+        get: operations["get_fx_rate_api_v1_fx_rates_get"];
+        /**
+         * Put Fx Rate
+         * @description Store one dated rate against the company's base currency.
+         *
+         *     A past date's rate cannot be rewritten (T-1.ACCT.05): the refusal is
+         *     `currency_error` with the reason, not a silent overwrite.
+         */
+        put: operations["put_fx_rate_api_v1_fx_rates_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -54,6 +205,9 @@ export interface paths {
         /**
          * List Entries
          * @description One page of the company's ledger, in posting order.
+         *
+         *     Filtered to one source document when the pair is given — the drill-down from
+         *     a document to the postings it produced (T-1.ACCT.02).
          */
         get: operations["list_entries_api_v1_journal_entries_get"];
         put?: never;
@@ -68,10 +222,122 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register Report Definition
+         * @description Register a report: its schedule and its recipients are rows (T-0.REPORT.01).
+         */
+        post: operations["register_report_definition_api_v1_reports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/{code}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Report Now
+         * @description Run one registered report for this company, and deliver it to its recipients.
+         *
+         *     The capability the definition carries is asked for by the framework itself
+         *     (T-0.REPORT.01), so a caller who may not see the report is refused before
+         *     anything is built — and a builder that fails leaves a `failed` run, not a
+         *     silent absence.
+         */
+        post: operations["run_report_now_api_v1_reports__code__run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AccountIn */
+        AccountIn: {
+            /** Account Class */
+            account_class: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Parent Code */
+            parent_code?: string | null;
+        };
+        /** AccountMappingIn */
+        AccountMappingIn: {
+            /** Account Code */
+            account_code: string;
+        };
+        /** AccountMappingOut */
+        AccountMappingOut: {
+            /** Account Code */
+            account_code: string;
+            /** Account Id */
+            account_id: string;
+            /** Key */
+            key: string;
+        };
+        /** AccountOut */
+        AccountOut: {
+            /** Account Class */
+            account_class: string;
+            /** Code */
+            code: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Parent Id */
+            parent_id?: string | null;
+        };
+        /** AccountTreeNode */
+        AccountTreeNode: {
+            /** Account Class */
+            account_class: string;
+            /** Children */
+            children: components["schemas"]["AccountTreeNode"][];
+            /** Code */
+            code: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Parent Id */
+            parent_id?: string | null;
+        };
+        /** CoaImportIn */
+        CoaImportIn: {
+            /** Market */
+            market: string;
+        };
+        /** CoaImportOut */
+        CoaImportOut: {
+            /** Accounts */
+            accounts: components["schemas"]["AccountOut"][];
+            /** Imported */
+            imported: number;
+            /** Market */
+            market: string;
+        };
         /** CompanyOut */
         CompanyOut: {
             /** Base Currency */
@@ -82,6 +348,20 @@ export interface components {
             fiscal_year_start_month: number;
             /** Id */
             id: string;
+            /** Name */
+            name: string;
+        };
+        /** CurrencyIn */
+        CurrencyIn: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+        };
+        /** CurrencyOut */
+        CurrencyOut: {
+            /** Code */
+            code: string;
             /** Name */
             name: string;
         };
@@ -107,6 +387,34 @@ export interface components {
         ErrorOut: {
             error: components["schemas"]["ErrorDetail"];
         };
+        /** FxRateIn */
+        FxRateIn: {
+            /** Currency */
+            currency: string;
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /** Rate */
+            rate: string;
+        };
+        /** FxRateOut */
+        FxRateOut: {
+            /** Base Currency */
+            base_currency: string;
+            /** Currency */
+            currency: string;
+            /** Rate */
+            rate: string;
+            /**
+             * Rate Date
+             * Format: date
+             */
+            rate_date: string;
+            /** Source */
+            source: string;
+        };
         /** HealthOut */
         HealthOut: {
             /** Status */
@@ -127,6 +435,10 @@ export interface components {
              * Format: date
              */
             posting_date: string;
+            /** Source Id */
+            source_id?: string | null;
+            /** Source Type */
+            source_type?: string | null;
         };
         /** JournalEntryOut */
         JournalEntryOut: {
@@ -134,15 +446,23 @@ export interface components {
             company_id: string;
             /** Currency */
             currency: string;
+            /** Exchange Rate */
+            exchange_rate: string;
             /** Id */
             id: string;
             /** Lines */
             lines: components["schemas"]["JournalLineOut"][];
+            /** Memo */
+            memo?: string | null;
             /**
              * Posting Date
              * Format: date
              */
             posting_date: string;
+            /** Source Id */
+            source_id?: string | null;
+            /** Source Type */
+            source_type?: string | null;
         };
         /** JournalLineIn */
         JournalLineIn: {
@@ -159,6 +479,10 @@ export interface components {
         JournalLineOut: {
             /** Account */
             account: string;
+            /** Base Credit */
+            base_credit: string;
+            /** Base Debit */
+            base_debit: string;
             /** Credit */
             credit: string;
             /** Debit */
@@ -179,6 +503,47 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** ReportIn */
+        ReportIn: {
+            /** Capability */
+            capability?: string | null;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Recipients */
+            recipients: string[];
+            /** Schedule */
+            schedule: string;
+        };
+        /** ReportOut */
+        ReportOut: {
+            /** Capability */
+            capability: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Recipients */
+            recipients: string[];
+            /** Schedule */
+            schedule: string;
+        };
+        /** ReportRunOut */
+        ReportRunOut: {
+            /** Code */
+            code: string;
+            /** Delivered To */
+            delivered_to?: string[] | null;
+            /** Error */
+            error?: string | null;
+            /** Produced */
+            produced?: {
+                [key: string]: unknown;
+            } | null;
+            /** Status */
+            status: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -188,6 +553,450 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_account_mappings_api_v1_account_mappings_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountMappingOut"][];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    put_account_mapping_api_v1_account_mappings__key__put: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountMappingIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountMappingOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    new_account_api_v1_accounts_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    import_coa_api_v1_accounts_import_coa_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CoaImportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CoaImportOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    accounts_tree_api_v1_accounts_tree_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountTreeNode"][];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
     current_company_api_v1_companies_current_get: {
         parameters: {
             query?: never;
@@ -207,6 +1016,361 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompanyOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    list_currencies_api_v1_currencies_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrencyOut"][];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    new_currency_api_v1_currencies_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CurrencyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrencyOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    get_fx_rate_api_v1_fx_rates_get: {
+        parameters: {
+            query: {
+                currency: string;
+                on: string;
+            };
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FxRateOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    put_fx_rate_api_v1_fx_rates_put: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FxRateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FxRateOut"];
                 };
             };
             /** @description The request could not be understood */
@@ -362,6 +1526,8 @@ export interface operations {
             query?: {
                 limit?: number;
                 offset?: number;
+                source_type?: string | null;
+                source_id?: string | null;
             };
             header: {
                 "x-company-id": string;
@@ -470,6 +1636,184 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JournalEntryOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    register_report_definition_api_v1_reports_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    run_report_now_api_v1_reports__code__run_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportRunOut"];
                 };
             };
             /** @description The request could not be understood */
