@@ -16,7 +16,8 @@
  *    `tsc` to fail on the code that reads it
  * 5. it builds as its own process (the Next.js production build), ready for its
  *    own image
- * 6. the client's 401/403 handling is what the shell relies on
+ * 6. the client's 401/403 handling is what the shell relies on, and every test in
+ *    `tests/` passes — including the comparative statement matrix (T-2.PROC.04)
  */
 
 import { execFileSync } from "node:child_process";
@@ -45,7 +46,14 @@ function run(command, args, { expectFailure = false } = {}) {
 }
 
 // 1 — no database, no backend source
-for (const path of ["app/layout.tsx", "app/page.tsx", "lib/api.ts"]) {
+for (const path of [
+  "app/layout.tsx",
+  "app/page.tsx",
+  "lib/api.ts",
+  "lib/comparison.ts",
+  "app/rfqs/[number]/page.tsx",
+  "app/rfqs/[number]/export/route.ts",
+]) {
   const source = readFileSync(resolve(root, path), "utf8");
   for (const forbidden of ["DATABASE_URL", "postgres://", "postgresql://", "psycopg", "ERPbackend"]) {
     if (source.includes(forbidden)) {
@@ -112,8 +120,15 @@ if (run("npm", ["run", "build"])) {
   console.log("the production build succeeds (its own process, its own image)");
 }
 
-// 6 — the client's failure handling
-if (run("node", ["--experimental-strip-types", "--test", "tests/client.test.ts"])) {
+// 6 — the client's failure handling, and every other test the repository states
+if (
+  run("node", [
+    "--experimental-strip-types",
+    "--test",
+    "tests/client.test.ts",
+    "tests/comparison.test.ts",
+  ])
+) {
   console.log("401 asks for a session and 403 is explained, both without breaking the shell");
 }
 

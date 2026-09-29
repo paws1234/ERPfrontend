@@ -267,6 +267,73 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/rfqs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * New Rfq
+         * @description Issue an RFQ against an approved requisition to one or more suppliers.
+         */
+        post: operations["new_rfq_api_v1_rfqs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Rfq
+         * @description One RFQ with its lines, its invitees and what each of them answered.
+         *
+         *     What T-2.PROC.04's comparative statement matrix reads. A quote in another
+         *     currency is carried at the rate for the RFQ's issue date, and the rate is in the
+         *     payload, so the basis is visible rather than implied.
+         */
+        get: operations["read_rfq_api_v1_rfqs__number__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rfqs/{number}/responses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Rfq Answer
+         * @description Record one invited supplier's answer, line by line.
+         *
+         *     A late answer is stored with `late = true` rather than refused: deciding whether
+         *     to still use it is the buyer's, and the record has to be able to say so.
+         */
+        post: operations["record_rfq_answer_api_v1_rfqs__number__responses_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -543,6 +610,139 @@ export interface components {
             } | null;
             /** Status */
             status: string;
+        };
+        /**
+         * RfqBasisOut
+         * @description What makes the quotes comparable — stated, so the matrix can label it.
+         */
+        RfqBasisOut: {
+            /** Base Currency */
+            base_currency: string;
+            /**
+             * Fx On
+             * Format: date
+             */
+            fx_on: string;
+            /** Tax Inclusive */
+            tax_inclusive: boolean;
+            /** Tax Rate Percent */
+            tax_rate_percent?: string | null;
+            /** Tax Rule Code */
+            tax_rule_code?: string | null;
+        };
+        /** RfqIn */
+        RfqIn: {
+            /** Issued On */
+            issued_on?: string | null;
+            /** Number */
+            number: string;
+            /** Requisition */
+            requisition: string;
+            /**
+             * Response Deadline
+             * Format: date
+             */
+            response_deadline: string;
+            /** Supplier Codes */
+            supplier_codes: string[];
+        };
+        /** RfqLineOut */
+        RfqLineOut: {
+            /** Description */
+            description: string;
+            /** Line No */
+            line_no: number;
+            /** Quantity */
+            quantity: string;
+            /** Requisition Line No */
+            requisition_line_no: number;
+            /** Uom */
+            uom: string;
+        };
+        /** RfqOut */
+        RfqOut: {
+            basis: components["schemas"]["RfqBasisOut"];
+            /** Currency */
+            currency: string;
+            /**
+             * Issued On
+             * Format: date
+             */
+            issued_on: string;
+            /** Lines */
+            lines: components["schemas"]["RfqLineOut"][];
+            /** Number */
+            number: string;
+            /** Requisition */
+            requisition: string;
+            /**
+             * Response Deadline
+             * Format: date
+             */
+            response_deadline: string;
+            /** Status */
+            status: string;
+            /** Suppliers */
+            suppliers: components["schemas"]["RfqSupplierOut"][];
+        };
+        /** RfqQuotedLineIn */
+        RfqQuotedLineIn: {
+            /** Line No */
+            line_no: number;
+            /** Unit Price */
+            unit_price: string;
+        };
+        /** RfqQuotedLineOut */
+        RfqQuotedLineOut: {
+            /** Base Unit Price */
+            base_unit_price: string;
+            /** Currency */
+            currency: string;
+            /** Fx Rate */
+            fx_rate: string;
+            /** Line No */
+            line_no: number;
+            /** Unit Price */
+            unit_price: string;
+        };
+        /** RfqResponseIn */
+        RfqResponseIn: {
+            /** Currency */
+            currency?: string | null;
+            /** Lead Time Days */
+            lead_time_days?: number | null;
+            /** Lines */
+            lines: components["schemas"]["RfqQuotedLineIn"][];
+            /** Note */
+            note?: string | null;
+            /**
+             * Received On
+             * Format: date
+             */
+            received_on: string;
+            /** Supplier Code */
+            supplier_code: string;
+            /** Valid Until */
+            valid_until?: string | null;
+        };
+        /** RfqSupplierOut */
+        RfqSupplierOut: {
+            /** Code */
+            code: string;
+            /** Late */
+            late: boolean;
+            /** Lead Time Days */
+            lead_time_days?: number | null;
+            /** Lines */
+            lines: components["schemas"]["RfqQuotedLineOut"][];
+            /** Name */
+            name: string;
+            /** Received On */
+            received_on?: string | null;
+            /** Responded */
+            responded: boolean;
+            /** Valid Until */
+            valid_until?: string | null;
         };
     };
     responses: never;
@@ -1814,6 +2014,276 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReportRunOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    new_rfq_api_v1_rfqs_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RfqIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RfqOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    read_rfq_api_v1_rfqs__number__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RfqOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    record_rfq_answer_api_v1_rfqs__number__responses_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RfqResponseIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RfqOut"];
                 };
             };
             /** @description The request could not be understood */
