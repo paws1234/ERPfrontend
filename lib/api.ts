@@ -25,6 +25,8 @@ export type JournalPage = components["schemas"]["PageOut"];
 export type CompanyProfile = components["schemas"]["CompanyOut"];
 export type Health = components["schemas"]["HealthOut"];
 export type ApiErrorBody = components["schemas"]["ErrorOut"];
+/** T-2.PROC.04: one RFQ with what every invited supplier answered. */
+export type Rfq = components["schemas"]["RfqOut"];
 
 /** The paths this client speaks, read straight out of the contract. */
 export type LedgerListPath = paths["/api/v1/journal-entries"]["get"];
@@ -103,6 +105,17 @@ export function health(): Promise<Health> {
   return request<Health>("/api/v1/health", { companyId: "", actor: "" });
 }
 
+/**
+ * The instance's own identity, read from the environment at start — no rebuild.
+ * One place, so every screen speaks as the same company and actor.
+ */
+export function instanceIdentity(): Identity {
+  return {
+    companyId: process.env.COMPANY_ID ?? "00000000-0000-0000-0000-000000000000",
+    actor: process.env.ACTOR ?? "shell",
+  };
+}
+
 export function companyProfile(identity: Identity): Promise<CompanyProfile> {
   return request<CompanyPath["responses"][200]["content"]["application/json"]>(
     "/api/v1/companies/current",
@@ -118,6 +131,17 @@ export function listJournalEntries(
     `/api/v1/journal-entries?limit=${limit}&offset=${offset}`,
     identity,
   );
+}
+
+/**
+ * T-2.PROC.04 — one RFQ as the API states it: its lines, who was asked and what
+ * each of them answered, with the basis the comparison has to be made on.
+ *
+ * Read-only, and the only place the matrix gets its data: the comparison itself
+ * (./comparison) computes over this payload and never over a database.
+ */
+export function readRfq(identity: Identity, number: string): Promise<Rfq> {
+  return request<Rfq>(`/api/v1/rfqs/${encodeURIComponent(number)}`, identity);
 }
 
 /**
