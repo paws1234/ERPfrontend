@@ -51,8 +51,10 @@ for (const path of [
   "app/page.tsx",
   "lib/api.ts",
   "lib/comparison.ts",
+  "lib/pipeline.ts",
   "app/rfqs/[number]/page.tsx",
   "app/rfqs/[number]/export/route.ts",
+  "app/pipeline/page.tsx",
 ]) {
   const source = readFileSync(resolve(root, path), "utf8");
   for (const forbidden of ["DATABASE_URL", "postgres://", "postgresql://", "psycopg", "ERPbackend"]) {

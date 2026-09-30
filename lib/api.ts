@@ -27,6 +27,8 @@ export type Health = components["schemas"]["HealthOut"];
 export type ApiErrorBody = components["schemas"]["ErrorOut"];
 /** T-2.PROC.04: one RFQ with what every invited supplier answered. */
 export type Rfq = components["schemas"]["RfqOut"];
+/** T-3.SALES.02: the opportunity board's columns and the cards standing in them. */
+export type PipelineColumn = components["schemas"]["PipelineColumnOut"];
 
 /** The paths this client speaks, read straight out of the contract. */
 export type LedgerListPath = paths["/api/v1/journal-entries"]["get"];
@@ -142,6 +144,18 @@ export function listJournalEntries(
  */
 export function readRfq(identity: Identity, number: string): Promise<Rfq> {
   return request<Rfq>(`/api/v1/rfqs/${encodeURIComponent(number)}`, identity);
+}
+
+/**
+ * T-3.SALES.02 — the opportunity board, as the API states it.
+ *
+ * Read-only. The columns are the company's own configuration and the cards are
+ * filtered per field permission before they leave the backend, so a field this
+ * actor may not read is **absent** from a card rather than null — `lib/pipeline`
+ * is what turns that distinction into the numbers the board shows.
+ */
+export function readPipelineBoard(identity: Identity): Promise<PipelineColumn[]> {
+  return request<PipelineColumn[]>("/api/v1/pipeline/board", identity);
 }
 
 /**

@@ -222,6 +222,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pipeline/board": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Pipeline Board View
+         * @description The opportunity board as this caller may see it.
+         *
+         *     Read-only, and the columns are whatever the company configured — no stage list
+         *     is compiled in. The payload is filtered per field permission before it leaves,
+         *     so a restricted value is not in the response at all; it is returned as a
+         *     `JSONResponse` for that reason, rather than validated into a model whose
+         *     defaults would put a null back where a field was deliberately omitted.
+         */
+        get: operations["pipeline_board_view_api_v1_pipeline_board_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports": {
         parameters: {
             query?: never;
@@ -569,6 +595,51 @@ export interface components {
             offset: number;
             /** Total */
             total: number;
+        };
+        /**
+         * PipelineCardOut
+         * @description One deal on the board.
+         *
+         *     **Every** field may be absent from the payload: a field the caller's role may not
+         *     read is left out rather than nulled (T-0.SEC.01), and no field is exempt — a
+         *     restriction can be stated against any of them. The contract therefore marks them
+         *     all optional, and the shell renders a missing field as "not shown" rather than as
+         *     an empty one.
+         */
+        PipelineCardOut: {
+            /** Expected Close */
+            expected_close?: string | null;
+            /** Lost Reason */
+            lost_reason?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Owner */
+            owner?: string | null;
+            /** Value */
+            value?: string | null;
+        };
+        /**
+         * PipelineColumnOut
+         * @description A column and the cards standing in it.
+         */
+        PipelineColumnOut: {
+            /** Cards */
+            cards: components["schemas"]["PipelineCardOut"][];
+            stage: components["schemas"]["PipelineStageOut"];
+        };
+        /**
+         * PipelineStageOut
+         * @description One configured column: its name, its place on the board and what it means.
+         */
+        PipelineStageOut: {
+            /** Is Lost */
+            is_lost: boolean;
+            /** Is Won */
+            is_won: boolean;
+            /** Name */
+            name: string;
+            /** Position */
+            position: number;
         };
         /** ReportIn */
         ReportIn: {
@@ -1836,6 +1907,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JournalEntryOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    pipeline_board_view_api_v1_pipeline_board_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PipelineColumnOut"][];
                 };
             };
             /** @description The request could not be understood */
