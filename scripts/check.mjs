@@ -21,7 +21,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { copyFileSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -121,11 +121,15 @@ if (run("npm", ["run", "build"])) {
 }
 
 // 6 — the client's failure handling, and every other test the repository states
+const testFiles = readdirSync(resolve(root, "tests"))
+  .filter((file) => file.endsWith(".test.ts"))
+  .sort()
+  .map((file) => resolve(root, "tests", file));
 if (
   run("node", [
     "--experimental-strip-types",
     "--test",
-    "tests/",
+    ...testFiles,
   ])
 ) {
   console.log("401 asks for a session and 403 is explained, both without breaking the shell");
