@@ -49,6 +49,22 @@ export function orderedColumns(board: PipelineBoard): PipelineBoard {
 }
 
 /**
+ * A card's name, or `null` when this caller may not read it.
+ *
+ * `name` is optional in the contract for the same reason `value` is: the endpoint
+ * omits **any** field a restriction hides, so a nameless card means "not shown to
+ * you", never "a deal with no name". A blank name reads as withheld too — it names
+ * nothing either way.
+ */
+export function cardName(card: PipelineCard): string | null {
+  if (!("name" in card) || card.name === null || card.name === undefined) {
+    return null;
+  }
+  const name = String(card.name).trim();
+  return name === "" ? null : name;
+}
+
+/**
  * A card's value as a number, or `null` when it is **not shown** to this caller.
  *
  * `null` is returned both for an absent field and for a value that is not a decimal

@@ -11,7 +11,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { boardSummary, cardValue, orderedColumns, type PipelineBoard } from "../lib/pipeline.ts";
+import { boardSummary, cardName, cardValue, orderedColumns, type PipelineBoard } from "../lib/pipeline.ts";
 
 const BOARD: PipelineBoard = [
   {
@@ -38,6 +38,14 @@ test("columns come back in the configured order, whatever order they arrived in"
     orderedColumns(BOARD).map((column) => column.stage.name),
     ["Lead", "Won", "Lost"],
   );
+});
+
+test("a withheld name reads as withheld, never as an unnamed deal", () => {
+  assert.equal(cardName({ name: "Visible deal", value: "1" }), "Visible deal");
+  assert.equal(cardName({ value: "1" }), null, "an absent name must not read as empty");
+  assert.equal(cardName({ name: null }), null);
+  assert.equal(cardName({ name: "   " }), null, "a blank name names nothing either way");
+  assert.equal(cardName({ name: "  Trimmed  " }), "Trimmed");
 });
 
 test("a withheld value is null, and a real zero is zero", () => {

@@ -13,7 +13,7 @@ import {
   readPipelineBoard,
   type Identity,
 } from "@/lib/api";
-import { boardSummary, orderedColumns, type PipelineBoard } from "@/lib/pipeline";
+import { boardSummary, cardName, orderedColumns, type PipelineBoard } from "@/lib/pipeline";
 
 const IDENTITY: Identity = {
   companyId: process.env.COMPANY_ID ?? "00000000-0000-0000-0000-000000000000",
@@ -84,12 +84,12 @@ export default async function PipelinePage() {
                 {column.stage.is_lost ? " ✕" : ""}
               </h2>
               <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                {column.cards.map((card) => {
+                {column.cards.map((card, index) => {
                   const valueShown =
                     "value" in card && card.value !== null && card.value !== undefined;
                   return (
                     <li
-                      key={card.name}
+                      key={cardName(card) ?? `card-${index}`}
                       style={{
                         background: "#fff",
                         border: "1px solid #e6e8eb",
@@ -98,7 +98,7 @@ export default async function PipelinePage() {
                         marginBottom: "0.5rem",
                       }}
                     >
-                      <strong>{card.name}</strong>
+                      <strong>{cardName(card) ?? "name not shown to you"}</strong>
                       {card.owner ? (
                         <div style={{ color: "#5b6470" }}>owner {card.owner}</div>
                       ) : null}
