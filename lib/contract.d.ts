@@ -1024,6 +1024,9 @@ export interface components {
          *
          *     Lines come with the header because a quotation with no lines is not a document —
          *     and because a partially-created quotation would be a quotation nobody quoted.
+         *     There is no endpoint that adds a line to an existing one, so an empty list would
+         *     create a document that can never become an order; the boundary refuses it here
+         *     rather than letting the store hold it.
          */
         QuotationIn: {
             /** Currency */
