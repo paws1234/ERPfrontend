@@ -29,6 +29,11 @@ export type ApiErrorBody = components["schemas"]["ErrorOut"];
 export type Rfq = components["schemas"]["RfqOut"];
 /** T-3.SALES.02: the opportunity board's columns and the cards standing in them. */
 export type PipelineColumn = components["schemas"]["PipelineColumnOut"];
+/** T-3.SALES.02: one card after a mutation — the fields this caller may read, the
+ * stage it now stands in, and the move that put it there. */
+export type Opportunity = components["schemas"]["OpportunityOut"];
+/** T-3.SALES.02: the document a won opportunity produced. */
+export type Quotation = components["schemas"]["QuotationOut"];
 
 /** The paths this client speaks, read straight out of the contract. */
 export type LedgerListPath = paths["/api/v1/journal-entries"]["get"];
@@ -156,6 +161,88 @@ export function readRfq(identity: Identity, number: string): Promise<Rfq> {
  */
 export function readPipelineBoard(identity: Identity): Promise<PipelineColumn[]> {
   return request<PipelineColumn[]>("/api/v1/pipeline/board", identity);
+}
+
+/**
+ * The four writes that make the board drivable rather than a picture.
+ *
+ * Every one of them goes through `request()` like the reads, so a 401, a 403 and a
+ * domain refusal arrive as the same three types the shell already branches on. The
+ * actor is the **instance's** identity, never something the caller types: the actor a
+ * move records has to be the request's own, and the instant is the server's.
+ *
+ * `undefined` fields are dropped by `JSON.stringify`, so a caller that states no
+ * value does not send one — which matters, because the backend treats a field the
+ * caller actually set as a write (T-0.SEC.01).
+ */
+export interface NewOpportunity {
+  customerCode: string;
+  name: string;
+  owner: string;
+  /** A decimal string at the platform's money scale, or nothing at all. */
+  value?: string;
+  /** An ISO date (`YYYY-MM-DD`). */
+  expectedClose?: string;
+  /** The column to open the card in; the first stage when unstated. */
+  stage?: string;
+}
+
+export function createOpportunity(
+  identity: Identity,
+  deal: NewOpportunity,
+): Promise<Opportunity> {
+  return request<Opportunity>("/api/v1/opportunities", identity, {
+    method: "POST",
+    body: JSON.stringify({
+      customer_code: deal.customerCode,
+      name: deal.name,
+      owner: deal.owner,
+      value: deal.value,
+      expected_close: deal.expectedClose,
+      stage: deal.stage,
+    }),
+  });
+}
+
+/** Move a card to a column. Moving into a loss column needs a reason. */
+export function moveOpportunity(
+  identity: Identity,
+  opportunityId: string,
+  toStage: string,
+  reason?: string,
+): Promise<Opportunity> {
+  return request<Opportunity>(
+    `/api/v1/opportunities/${encodeURIComponent(opportunityId)}/moves`,
+    identity,
+    { method: "POST", body: JSON.stringify({ to_stage: toStage, reason }) },
+  );
+}
+
+/** Mark a deal lost, with the reason the domain requires. */
+export function loseOpportunity(
+  identity: Identity,
+  opportunityId: string,
+  reason: string,
+): Promise<Opportunity> {
+  return request<Opportunity>(
+    `/api/v1/opportunities/${encodeURIComponent(opportunityId)}/loss`,
+    identity,
+    { method: "POST", body: JSON.stringify({ reason }) },
+  );
+}
+
+/** Turn a won deal into a quotation. One win, one quotation. */
+export function convertOpportunity(
+  identity: Identity,
+  opportunityId: string,
+  number: string,
+  issuedOn?: string,
+): Promise<Quotation> {
+  return request<Quotation>(
+    `/api/v1/opportunities/${encodeURIComponent(opportunityId)}/quotation`,
+    identity,
+    { method: "POST", body: JSON.stringify({ number, issued_on: issuedOn }) },
+  );
 }
 
 /**

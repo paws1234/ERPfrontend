@@ -15,11 +15,14 @@ import {
   boardSummary,
   moneyLabel,
   moneyState,
+  movableStages,
   nameLabel,
   nameState,
   orderedColumns,
   type PipelineBoard,
 } from "@/lib/pipeline";
+
+import { CardActions, NewDealForm } from "./board-actions";
 
 // A board is live data: rendered per request, never cached at build.
 export const dynamic = "force-dynamic";
@@ -36,6 +39,9 @@ export default async function PipelinePage() {
   }
 
   const summary = board ? boardSummary(board) : null;
+  // The columns a card may be moved into — the loss column is not one of them, because
+  // ending a deal is its own action and it requires a reason (see ./board-actions).
+  const stages = board ? movableStages(board) : [];
 
   return (
     <section>
@@ -74,8 +80,18 @@ export default async function PipelinePage() {
         </div>
       ) : null}
 
+      {board ? <NewDealForm stages={stages} /> : null}
+
       {board ? (
-        <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+            marginTop: "1rem",
+          }}
+        >
           {orderedColumns(board).map((column) => (
             <div
               key={column.stage.name}
@@ -115,6 +131,13 @@ export default async function PipelinePage() {
                       {card.expected_close ? <div>{card.expected_close}</div> : null}
                       {card.lost_reason ? (
                         <div style={{ color: "#8a1c1c" }}>lost: {card.lost_reason}</div>
+                      ) : null}
+                      {typeof card.id === "string" ? (
+                        <CardActions
+                          cardId={card.id}
+                          stages={stages}
+                          canConvert={column.stage.is_won}
+                        />
                       ) : null}
                     </li>
                   );

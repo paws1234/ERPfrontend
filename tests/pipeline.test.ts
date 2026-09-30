@@ -15,8 +15,10 @@ import { test } from "node:test";
 import {
   boardSummary,
   moneyState,
+  movableStages,
   nameState,
   orderedColumns,
+  wonStages,
   type PipelineBoard,
   type PipelineCard,
 } from "../lib/pipeline.ts";
@@ -124,6 +126,16 @@ test("the summary separates open, won and lost cards by what the columns mean", 
   assert.equal(summary.open, 5, "the five cards in the Lead column are the open ones");
   assert.equal(summary.won, 2);
   assert.equal(summary.lost, 1);
+});
+
+test("a card may be moved into any column but a loss, and converted from a won one", () => {
+  // In the company's configured order, not the order the payload arrived in, and
+  // without the loss column: ending a deal goes through the action that requires a
+  // reason, so the board never offers a move it would refuse.
+  assert.deepEqual(movableStages(BOARD), ["Lead", "Won"]);
+  assert.deepEqual(wonStages(BOARD), ["Won"]);
+  assert.deepEqual(movableStages([]), []);
+  assert.deepEqual(wonStages([]), []);
 });
 
 test("an empty board summarises to nothing rather than throwing", () => {
