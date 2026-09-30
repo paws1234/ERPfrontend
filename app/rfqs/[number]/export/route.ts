@@ -7,7 +7,13 @@
  * like every other screen and holds no data of its own.
  */
 
-import { instanceIdentity, readRfq } from "@/lib/api";
+import {
+  ApiFailure,
+  instanceIdentity,
+  NotPermitted,
+  readRfq,
+  Unauthenticated,
+} from "@/lib/api";
 import { buildComparison, comparisonCsv } from "@/lib/comparison";
 
 export const dynamic = "force-dynamic";
@@ -22,15 +28,24 @@ export async function GET(
     csv = comparisonCsv(buildComparison(await readRfq(instanceIdentity(), number)));
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
+    const status =
+      error instanceof Unauthenticated
+        ? 401
+        : error instanceof NotPermitted
+          ? 403
+          : error instanceof ApiFailure
+            ? error.status
+            : 502;
     return new Response(detail, {
-      status: 502,
+      status,
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   }
+  const safeNumber = number.replace(/[^a-zA-Z0-9._-]/g, "_") || "rfq";
   return new Response(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="comparative-statement-${number}.csv"`,
+      "Content-Disposition": `attachment; filename="comparative-statement-${safeNumber}.csv"`,
     },
   });
 }

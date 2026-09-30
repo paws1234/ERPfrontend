@@ -125,8 +125,7 @@ if (
   run("node", [
     "--experimental-strip-types",
     "--test",
-    "tests/client.test.ts",
-    "tests/comparison.test.ts",
+    "tests/",
   ])
 ) {
   console.log("401 asks for a session and 403 is explained, both without breaking the shell");

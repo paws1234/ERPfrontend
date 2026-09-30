@@ -33,10 +33,10 @@ function Cell({
   baseCurrency: string;
 }) {
   if (cell.status === "did_not_respond") {
-    return <em style={{ color: "#8a93a0" }}>did not respond</em>;
+    return <em style={{ color: "#5b6470" }}>did not respond</em>;
   }
   if (cell.status === "no_quote") {
-    return <em style={{ color: "#8a93a0" }}>no quote for this line</em>;
+    return <em style={{ color: "#5b6470" }}>no quote for this line</em>;
   }
   return (
     <span>
@@ -60,7 +60,7 @@ function Cell({
       {cell.late ? (
         <>
           {" "}
-          <strong style={{ color: "#b06a00" }}>late</strong>
+          <strong style={{ color: "#8a4f00" }}>late</strong>
         </>
       ) : null}
     </span>
@@ -115,7 +115,7 @@ function Matrix({ comparison }: { comparison: Comparison }) {
         </p>
       ) : null}
       {comparison.lateResponders.length > 0 ? (
-        <p style={{ color: "#b06a00" }}>
+        <p style={{ color: "#8a4f00" }}>
           Answered after the deadline: {comparison.lateResponders.join(", ")}.
         </p>
       ) : null}

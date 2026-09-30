@@ -65,20 +65,22 @@ export function multiply(a: string, b: string): string {
 }
 
 /** An amount with the configured rate added on top, exactly: `a × (1 + rate/100)`. */
-export function taxInclusive(amount: string, ratePercent: string | null): string {
-  if (ratePercent === null) {
+export function taxInclusive(
+  amount: string,
+  ratePercent: string | null | undefined,
+): string {
+  if (ratePercent == null) {
     return decimal(scaled(amount));
   }
-  // 1 + rate/100 as a fraction over 10000, with the rate itself taken at two
-  // decimals — 12 becomes 1200, 12.5 becomes 1250.
-  const basisPoints = scaled(ratePercent) / 10n ** BigInt(SCALE - 2);
-  return decimal(round(scaled(amount) * (10000n + basisPoints), 10000n));
+  // 1 + rate/100, retaining the contract's full six-decimal percentage scale.
+  const rateScale = 100n * FACTOR;
+  return decimal(round(scaled(amount) * (rateScale + scaled(ratePercent)), rateScale));
 }
 
 /** The one line of prose that says what the numbers below it are comparable at. */
 export function basisLabel(basis: RfqBasisView): string {
   const parts = [`Amounts in ${basis.base_currency}, converted at the rate for ${basis.fx_on}`];
-  if (basis.tax_inclusive && basis.tax_rate_percent !== null) {
+  if (basis.tax_inclusive && basis.tax_rate_percent != null) {
     const rule = basis.tax_rule_code ? ` ${basis.tax_rule_code}` : "";
     parts.push(`tax-inclusive at ${basis.tax_rate_percent}%${rule}`);
   } else {
@@ -216,11 +218,14 @@ const CSV_HEADER = [
   "basis",
 ];
 
-function field(value: string | number | boolean | null): string {
+function field(value: string | number | boolean | null, numeric = false): string {
   if (value === null) {
     return "";
   }
-  const text = String(value);
+  const text =
+    !numeric && typeof value === "string" && /^[=+\-@]/.test(value)
+      ? `'${value}`
+      : String(value);
   return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
@@ -254,7 +259,9 @@ export function comparisonCsv(comparison: Comparison): string {
           cell.late,
           comparison.label,
         ]
-          .map(field)
+          .map((value, index) =>
+            field(value, [2, 4, 9, 10, 11, 12, 13].includes(index)),
+          )
           .join(","),
       );
     }

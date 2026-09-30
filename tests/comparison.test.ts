@@ -14,8 +14,8 @@
  *    zero** and from one that answered and said nothing about that line
  * 4. a late answer is still compared, and is flagged as late rather than hidden
  * 5. the money arithmetic is **exact** — no binary floating point anywhere: a value
- *    that a float would misround comes out of the matrix right, and two different
- *    orders of the same multiplications agree
+ *    that a float would misround comes out of the matrix right, with every
+ *    intermediate result held at the fixed money scale
  * 6. the export is a usable CSV: one row per supplier per line, quoted fields where
  *    a description carries a comma, and every line carrying the basis
  */
@@ -244,8 +244,8 @@ test("the money arithmetic is exact — no binary floating point", () => {
   // 0.1 + 0.2 in binary floating point is famously 0.30000000000000004; the same
   // figure through the money path comes out exact.
   assert.equal(multiply("0.100000", "3.000000"), "0.300000");
-  // a half-up rounding case at the sixth decimal: 0.000005 → 0.00001
-  assert.equal(taxInclusive("0.000004", "25"), "0.000005");
+  // a half-up rounding case at the seventh decimal: 0.0000055 → 0.000006
+  assert.equal(taxInclusive("0.000005", "10"), "0.000006");
   assert.equal(taxInclusive("0.000005", "0"), "0.000005");
   // 20 × 255.5 = 5110 exactly, and the tax-inclusive price is exact too
   assert.equal(multiply("255.500000", "20.000000"), "5110.000000");
