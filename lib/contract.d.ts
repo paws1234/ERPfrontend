@@ -222,6 +222,104 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/opportunities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * New Opportunity
+         * @description Put a deal on the board, in the first stage unless another is named.
+         *
+         *     The opening move is recorded like every other one, and its actor is the request's,
+         *     so a card's history starts at the column it was created in rather than at the
+         *     first time somebody dragged it.
+         */
+        post: operations["new_opportunity_api_v1_opportunities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/loss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Lose Opportunity Card
+         * @description Mark a deal lost, with its reason.
+         *
+         *     The column it lands in is the company's own — the one it marked `is_lost` — so a
+         *     client never has to know which column that is, and the reason is required by the
+         *     domain rule rather than by this endpoint. The move is still recorded on the trail,
+         *     which is what an auditor reads.
+         */
+        post: operations["lose_opportunity_card_api_v1_opportunities__opportunity_id__loss_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/moves": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Move Opportunity Card
+         * @description Move one card, recording who moved it and when.
+         *
+         *     Both come from the request rather than from the body: the actor is `X-Actor` and
+         *     the instant is the server's, so a move cannot be misattributed or back-dated. A
+         *     move into a column marked lost without a reason is refused by the domain rule.
+         */
+        post: operations["move_opportunity_card_api_v1_opportunities__opportunity_id__moves_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/quotation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Convert Opportunity Card
+         * @description Turn a won deal into a quotation, carrying the customer's details across.
+         *
+         *     Two capabilities, because the call writes two documents: it acts on the
+         *     opportunity and it creates a quotation (T-3.SALES.03's document, whose endpoints
+         *     will be gated the same way). One win produces one quotation — the refusal and the
+         *     schema's own partial unique index both hold however the request arrives.
+         */
+        post: operations["convert_opportunity_card_api_v1_opportunities__opportunity_id__quotation_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pipeline/board": {
         parameters: {
             query?: never;
@@ -242,6 +340,117 @@ export interface paths {
         get: operations["pipeline_board_view_api_v1_pipeline_board_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pipeline/stages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * New Pipeline Stage
+         * @description Add a column to the company's board.
+         *
+         *     This is the whole of "configurable without code change": the board is the rows
+         *     this endpoint has written, in their stated order, and `is_won`/`is_lost` are what
+         *     give a column its meaning while the name stays the company's own.
+         */
+        post: operations["new_pipeline_stage_api_v1_pipeline_stages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quotations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * New Quotation
+         * @description Raise a quotation with its priced lines and its validity window.
+         */
+        post: operations["new_quotation_api_v1_quotations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quotations/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Quotation
+         * @description One quotation, with the lines it prices and whether it still holds.
+         */
+        get: operations["read_quotation_api_v1_quotations__number__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quotations/{number}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Order From Quotation
+         * @description Convert an accepted quotation into an order — once.
+         *
+         *     Two capabilities, because the call reads one document and writes another: it acts
+         *     on the quotation and it creates an order (whose lifecycle is T-3.SALES.04's).
+         */
+        post: operations["order_from_quotation_api_v1_quotations__number__order_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quotations/{number}/reprice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reprice
+         * @description Re-price a whole quotation and restate how long the new prices hold.
+         *
+         *     This is what an expired quotation needs before it can become an order, and it is
+         *     refused on a quotation that already became one — an order is not re-priced behind
+         *     the customer's back.
+         */
+        post: operations["reprice_api_v1_quotations__number__reprice_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -585,6 +794,103 @@ export interface components {
             /** Party */
             party?: string | null;
         };
+        /**
+         * OpportunityIn
+         * @description A new deal.
+         *
+         *     The customer is named by its **code**, the way Phase 2's documents name their
+         *     suppliers, so a caller never has to hold a database id to state who a deal is for.
+         */
+        OpportunityIn: {
+            /** Customer Code */
+            customer_code: string;
+            /** Expected Close */
+            expected_close?: string | null;
+            /** Name */
+            name: string;
+            /** Owner */
+            owner: string;
+            /** Stage */
+            stage?: string | null;
+            /** Value */
+            value?: string | null;
+        };
+        /**
+         * OpportunityOut
+         * @description One card after a mutation: the fields the caller may read, where it now stands,
+         *     and the move that put it there.
+         *
+         *     The `card` half is filtered exactly as the board filters it — the same
+         *     `card_payload` through the same `hidden_fields` — so a mutation can never become a
+         *     way of reading a value the board withholds. The envelope is the response's own
+         *     framing rather than a card field, so it is not itself filterable.
+         */
+        OpportunityOut: {
+            card: components["schemas"]["PipelineCardOut"];
+            /** Closed At */
+            closed_at?: string | null;
+            move?: components["schemas"]["PipelineMoveOut"] | null;
+            /** Stage */
+            stage: string;
+        };
+        /**
+         * OrderLineIn
+         * @description The number the order is filed under, and the day it is placed.
+         */
+        OrderLineIn: {
+            /** Number */
+            number: string;
+            /** On */
+            on?: string | null;
+        };
+        /**
+         * OrderLineOut
+         * @description One ordered line — the quotation's, carried across without re-keying.
+         */
+        OrderLineOut: {
+            /** Amount */
+            amount: string;
+            /** Description */
+            description: string;
+            /** Line No */
+            line_no: number;
+            /**
+             * Priced On
+             * Format: date
+             */
+            priced_on: string;
+            /** Quantity */
+            quantity: string;
+            /** Rule Code */
+            rule_code?: string | null;
+            /** Unit Price */
+            unit_price: string;
+            /** Uom */
+            uom: string;
+        };
+        /**
+         * OrderOut
+         * @description The order a quotation became, and the quotation it came from.
+         */
+        OrderOut: {
+            /** Currency */
+            currency?: string | null;
+            /** Customer Code */
+            customer_code: string;
+            /** Lines */
+            lines: components["schemas"]["OrderLineOut"][];
+            /** Number */
+            number: string;
+            /**
+             * Ordered On
+             * Format: date
+             */
+            ordered_on: string;
+            /** Quotation */
+            quotation?: string | null;
+            /** Total */
+            total: string;
+        };
         /** PageOut */
         PageOut: {
             /** Items */
@@ -605,10 +911,16 @@ export interface components {
          *     restriction can be stated against any of them. The contract therefore marks them
          *     all optional, and the shell renders a missing field as "not shown" rather than as
          *     an empty one.
+         *
+         *     That includes `id`, which is what a card is addressed by when it is moved, lost or
+         *     converted: a caller whose role may not read it gets a board it can look at but not
+         *     drive, rather than one that offers an action that would fail.
          */
         PipelineCardOut: {
             /** Expected Close */
             expected_close?: string | null;
+            /** Id */
+            id?: string | null;
             /** Lost Reason */
             lost_reason?: string | null;
             /** Name */
@@ -628,6 +940,61 @@ export interface components {
             stage: components["schemas"]["PipelineStageOut"];
         };
         /**
+         * PipelineLossIn
+         * @description Why a deal ended. Required — a loss that says nothing teaches nothing.
+         */
+        PipelineLossIn: {
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * PipelineMoveIn
+         * @description One drag: the stage the card goes to, and the reason where one is needed.
+         */
+        PipelineMoveIn: {
+            /** Reason */
+            reason?: string | null;
+            /** To Stage */
+            to_stage: string;
+        };
+        /**
+         * PipelineMoveOut
+         * @description The step just recorded: where from, where to, who, when and (if lost) why.
+         *
+         *     The actor is the request's own `X-Actor` and the instant is the server's, so a
+         *     move cannot be back-dated or attributed by the caller.
+         */
+        PipelineMoveOut: {
+            /** Actor */
+            actor: string;
+            /** From Stage */
+            from_stage?: string | null;
+            /** Moved At */
+            moved_at: string;
+            /** Reason */
+            reason?: string | null;
+            /** To Stage */
+            to_stage: string;
+        };
+        /**
+         * PipelineStageIn
+         * @description A column to add: its name, its place, and what it means on the board.
+         *
+         *     `is_won`/`is_lost` are nullable rather than defaulted, like every other optional
+         *     field on this boundary: an omitted field says "not stated", and the contract keeps
+         *     optional and nullable the same thing so a client can tell the two apart.
+         */
+        PipelineStageIn: {
+            /** Is Lost */
+            is_lost?: boolean | null;
+            /** Is Won */
+            is_won?: boolean | null;
+            /** Name */
+            name: string;
+            /** Position */
+            position: number;
+        };
+        /**
          * PipelineStageOut
          * @description One configured column: its name, its place on the board and what it means.
          */
@@ -640,6 +1007,150 @@ export interface components {
             name: string;
             /** Position */
             position: number;
+        };
+        /**
+         * QuotationForOpportunityIn
+         * @description The number the quotation is filed under, and the day it is issued.
+         */
+        QuotationForOpportunityIn: {
+            /** Issued On */
+            issued_on?: string | null;
+            /** Number */
+            number: string;
+        };
+        /**
+         * QuotationIn
+         * @description A quotation and everything on it, in one request.
+         *
+         *     Lines come with the header because a quotation with no lines is not a document —
+         *     and because a partially-created quotation would be a quotation nobody quoted.
+         *     There is no endpoint that adds a line to an existing one, so an empty list would
+         *     create a document that can never become an order; the boundary refuses it here
+         *     rather than letting the store hold it.
+         */
+        QuotationIn: {
+            /** Currency */
+            currency?: string | null;
+            /** Customer Code */
+            customer_code: string;
+            /** Issued On */
+            issued_on?: string | null;
+            /** Lines */
+            lines: components["schemas"]["QuotationLineIn"][];
+            /** Number */
+            number: string;
+            /** Valid Until */
+            valid_until?: string | null;
+        };
+        /**
+         * QuotationLineIn
+         * @description One priced line at quote time.
+         *
+         *     `rule_code` is the pricing rule that produced the price, where a rule did — the
+         *     engine is T-3.SALES.06/07's and fills it; a price a person stated names no rule,
+         *     which is an honest null rather than an invented code. `priced_on` defaults to the
+         *     day the line is written, so the price's age is recorded either way.
+         */
+        QuotationLineIn: {
+            /** Description */
+            description: string;
+            /** Line No */
+            line_no: number;
+            /** Priced On */
+            priced_on?: string | null;
+            /** Quantity */
+            quantity: string;
+            /** Rule Code */
+            rule_code?: string | null;
+            /** Unit Price */
+            unit_price: string;
+            /** Uom */
+            uom?: string | null;
+        };
+        /**
+         * QuotationLineOut
+         * @description One priced line: what it is, what it costs, and why it costs that.
+         */
+        QuotationLineOut: {
+            /** Amount */
+            amount: string;
+            /** Description */
+            description: string;
+            /** Line No */
+            line_no: number;
+            /**
+             * Priced On
+             * Format: date
+             */
+            priced_on: string;
+            /** Quantity */
+            quantity: string;
+            /** Rule Code */
+            rule_code?: string | null;
+            /** Unit Price */
+            unit_price: string;
+            /** Uom */
+            uom: string;
+        };
+        /**
+         * QuotationOut
+         * @description One quotation: who it is for, what it prices, and whether it still holds.
+         *
+         *     `expired` is what a conversion asks before it acts, and `priced_on` on each line is
+         *     what says *when* the price was fixed — so "these prices are stale" is a fact in the
+         *     payload rather than something a client has to work out.
+         */
+        QuotationOut: {
+            /** Currency */
+            currency?: string | null;
+            /** Customer Code */
+            customer_code: string;
+            /** Expired */
+            expired: boolean;
+            /**
+             * Issued On
+             * Format: date
+             */
+            issued_on: string;
+            /** Lines */
+            lines: components["schemas"]["QuotationLineOut"][];
+            /** Number */
+            number: string;
+            /** Opportunity Id */
+            opportunity_id?: string | null;
+            /** Total */
+            total: string;
+            /** Valid Until */
+            valid_until?: string | null;
+        };
+        /**
+         * QuotationPriceIn
+         * @description One line restated: its number, its new price, and the rule behind it.
+         */
+        QuotationPriceIn: {
+            /** Line No */
+            line_no: number;
+            /** Rule Code */
+            rule_code?: string | null;
+            /** Unit Price */
+            unit_price: string;
+        };
+        /**
+         * QuotationRepriceIn
+         * @description A whole re-price: every line restated, and the window the new prices hold for.
+         *
+         *     `valid_until` is required rather than defaulted: the plan names no quotation
+         *     validity, so there is no honest default to invent — the caller states how long
+         *     their own re-price stands for.
+         */
+        QuotationRepriceIn: {
+            /** Prices */
+            prices: components["schemas"]["QuotationPriceIn"][];
+            /**
+             * Valid Until
+             * Format: date
+             */
+            valid_until: string;
         };
         /** ReportIn */
         ReportIn: {
@@ -1974,6 +2485,372 @@ export interface operations {
             };
         };
     };
+    new_opportunity_api_v1_opportunities_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    lose_opportunity_card_api_v1_opportunities__opportunity_id__loss_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PipelineLossIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    move_opportunity_card_api_v1_opportunities__opportunity_id__moves_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PipelineMoveIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    convert_opportunity_card_api_v1_opportunities__opportunity_id__quotation_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuotationForOpportunityIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuotationOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
     pipeline_board_view_api_v1_pipeline_board_get: {
         parameters: {
             query?: never;
@@ -1993,6 +2870,458 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PipelineColumnOut"][];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    new_pipeline_stage_api_v1_pipeline_stages_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PipelineStageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PipelineStageOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    new_quotation_api_v1_quotations_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuotationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuotationOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    read_quotation_api_v1_quotations__number__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuotationOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    order_from_quotation_api_v1_quotations__number__order_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderLineIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    reprice_api_v1_quotations__number__reprice_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuotationRepriceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuotationOut"];
                 };
             };
             /** @description The request could not be understood */

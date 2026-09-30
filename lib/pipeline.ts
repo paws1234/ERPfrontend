@@ -175,6 +175,28 @@ export function nameLabel(state: FieldState<string>): string {
   }
 }
 
+/**
+ * The columns a card may be **moved** into, in the company's order.
+ *
+ * Losing a deal is deliberately not one of them: it is an ending with a reason, and
+ * it goes through its own action (`loseOpportunity`), which requires that reason. A
+ * move select that offered the loss column too would be a second, silent way to end
+ * a deal — the backend would still refuse it without a reason, but the board would
+ * have offered something it cannot do.
+ */
+export function movableStages(board: PipelineBoard): string[] {
+  return orderedColumns(board)
+    .filter((column) => !column.stage.is_lost)
+    .map((column) => column.stage.name);
+}
+
+/** The columns a company marked won — where a card can be converted. */
+export function wonStages(board: PipelineBoard): string[] {
+  return orderedColumns(board)
+    .filter((column) => column.stage.is_won)
+    .map((column) => column.stage.name);
+}
+
 export function boardSummary(board: PipelineBoard): BoardSummary {
   const stages: StageSummary[] = orderedColumns(board).map((column) => {
     const states = column.cards.map(moneyState);
