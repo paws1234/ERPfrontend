@@ -397,6 +397,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/price-rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Price Rule
+         * @description File one pricing rule.
+         */
+        post: operations["create_price_rule_api_v1_price_rules_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/price-rules/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve Price Rule
+         * @description What the engine makes of one prospective line, and the order it decided in.
+         *
+         *     The tier comes from the customer when one is named, so a caller cannot price a
+         *     customer's order under a tier that customer does not sit in.
+         */
+        post: operations["resolve_price_rule_api_v1_price_rules_resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/quotations": {
         parameters: {
             query?: never;
@@ -1054,6 +1097,8 @@ export interface components {
             remaining: string;
             /** Rule Code */
             rule_code?: string | null;
+            /** Rule Priority */
+            rule_priority?: number | null;
             /** Shipped */
             shipped: string;
             /** Unit Price */
@@ -1255,6 +1300,92 @@ export interface components {
             position: number;
         };
         /**
+         * PriceDecisionOut
+         * @description The engine's answer, with the whole ordering it decided in.
+         */
+        PriceDecisionOut: {
+            /** Base Price */
+            base_price: string;
+            /** Considered */
+            considered: components["schemas"]["PriceRuleOut"][];
+            /** Price */
+            price: string;
+            /** Rule Code */
+            rule_code?: string | null;
+            /** Rule Priority */
+            rule_priority?: number | null;
+        };
+        /**
+         * PriceQueryIn
+         * @description What to price, before any rule has been applied to it.
+         *
+         *     `base_price` is stated by the caller because the plan names no price list and the
+         *     item master holds none: the engine decides which rule applies and what it does, not
+         *     what the goods list at.
+         */
+        PriceQueryIn: {
+            /** Base Price */
+            base_price: string;
+            /** Customer Code */
+            customer_code?: string | null;
+            /** Item Sku */
+            item_sku?: string | null;
+            /** Quantity */
+            quantity?: string | null;
+            /** Tier */
+            tier?: string | null;
+        };
+        /**
+         * PriceRuleIn
+         * @description One rule as it is filed: its scope, and the discount it applies.
+         *
+         *     Every dimension is optional and an omitted one means **no constraint** — an absent
+         *     tier is any tier — while `discount_type` must be stated, because the ledger records
+         *     no default and a rule with an invented one would silently discount by the wrong
+         *     measure.
+         */
+        PriceRuleIn: {
+            /** Code */
+            code: string;
+            /** Discount Type */
+            discount_type: string;
+            /** Discount Value */
+            discount_value: string;
+            /** Item Sku */
+            item_sku?: string | null;
+            /** Max Quantity */
+            max_quantity?: string | null;
+            /** Min Quantity */
+            min_quantity?: string | null;
+            /** Name */
+            name: string;
+            /** Priority */
+            priority?: number | null;
+            /** Tier */
+            tier?: string | null;
+        };
+        /** PriceRuleOut */
+        PriceRuleOut: {
+            /** Code */
+            code: string;
+            /** Discount Type */
+            discount_type: string;
+            /** Discount Value */
+            discount_value: string;
+            /** Item Sku */
+            item_sku?: string | null;
+            /** Max Quantity */
+            max_quantity?: string | null;
+            /** Min Quantity */
+            min_quantity: string;
+            /** Name */
+            name: string;
+            /** Priority */
+            priority: number;
+            /** Tier */
+            tier?: string | null;
+        };
+        /**
          * QuotationForOpportunityIn
          * @description The number the quotation is filed under, and the day it is issued.
          */
@@ -1333,6 +1464,8 @@ export interface components {
             quantity: string;
             /** Rule Code */
             rule_code?: string | null;
+            /** Rule Priority */
+            rule_priority?: number | null;
             /** Unit Price */
             unit_price: string;
             /** Uom */
@@ -3349,6 +3482,186 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PipelineStageOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    create_price_rule_api_v1_price_rules_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceRuleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceRuleOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    resolve_price_rule_api_v1_price_rules_resolve_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceQueryIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceDecisionOut"];
                 };
             };
             /** @description The request could not be understood */
