@@ -640,6 +640,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sales-orders/{number}/pick-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Order Pick List
+         * @description Draw the pick list for a confirmed order — exactly its lines, once.
+         */
+        post: operations["create_order_pick_list_api_v1_sales_orders__number__pick_list_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales-orders/{number}/pick-list/lines/{line_no}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Order Pick
+         * @description Record how much of one pick-list line was picked.
+         */
+        post: operations["record_order_pick_api_v1_sales_orders__number__pick_list_lines__line_no__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales-orders/{number}/shipments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ship Sales Order
+         * @description Ship named lines of a confirmed order, issuing stock out of one warehouse.
+         *
+         *     The refusal a second shipment for the same quantity produces is the point: what an
+         *     order still owes is read from the line, and shipping more is refused rather than
+         *     silently clamped.
+         */
+        post: operations["ship_sales_order_api_v1_sales_orders__number__shipments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -986,8 +1050,12 @@ export interface components {
             priced_on: string;
             /** Quantity */
             quantity: string;
+            /** Remaining */
+            remaining: string;
             /** Rule Code */
             rule_code?: string | null;
+            /** Shipped */
+            shipped: string;
             /** Unit Price */
             unit_price: string;
             /** Uom */
@@ -1016,8 +1084,11 @@ export interface components {
              * Format: date
              */
             ordered_on: string;
+            pick_list?: components["schemas"]["PickListOut"] | null;
             /** Quotation */
             quotation?: string | null;
+            /** Shipments */
+            shipments: components["schemas"]["ShipmentOut"][];
             /** Status */
             status: string;
             /** Total */
@@ -1033,6 +1104,49 @@ export interface components {
             offset: number;
             /** Total */
             total: number;
+        };
+        /** PickListIn */
+        PickListIn: {
+            /** Number */
+            number: string;
+            /** On */
+            on?: string | null;
+        };
+        /**
+         * PickListLineOut
+         * @description One line of the picker's paper: what the order asks, and what was picked.
+         */
+        PickListLineOut: {
+            /** Item Sku */
+            item_sku?: string | null;
+            /** Line No */
+            line_no: number;
+            /** Picked Quantity */
+            picked_quantity: string;
+            /** Quantity */
+            quantity: string;
+            /** Uom */
+            uom: string;
+        };
+        /** PickListOut */
+        PickListOut: {
+            /**
+             * Created On
+             * Format: date
+             */
+            created_on: string;
+            /** Lines */
+            lines: components["schemas"]["PickListLineOut"][];
+            /** Number */
+            number: string;
+        };
+        /**
+         * PickedQuantityIn
+         * @description How much of one pick-list line was picked.
+         */
+        PickedQuantityIn: {
+            /** Quantity */
+            quantity: string;
         };
         /**
          * PipelineCardOut
@@ -1457,6 +1571,59 @@ export interface components {
             responded: boolean;
             /** Valid Until */
             valid_until?: string | null;
+        };
+        /**
+         * ShipmentIn
+         * @description What a shipment needs: where from, and how much of which lines.
+         *
+         *     The lines come with the header because a shipment with nothing on it moves no
+         *     stock — the boundary refuses an empty list rather than storing a document that
+         *     describes nothing.
+         */
+        ShipmentIn: {
+            /** Lines */
+            lines: components["schemas"]["ShipmentLineIn"][];
+            /** Number */
+            number: string;
+            /** On */
+            on?: string | null;
+            /** Warehouse */
+            warehouse: string;
+        };
+        /** ShipmentLineIn */
+        ShipmentLineIn: {
+            /** Line No */
+            line_no: number;
+            /** Quantity */
+            quantity: string;
+        };
+        /**
+         * ShipmentLineOut
+         * @description One line as it left, and the stock movement that carried it out.
+         */
+        ShipmentLineOut: {
+            /** Line No */
+            line_no: number;
+            /** Movement */
+            movement?: string | null;
+            /** Quantity */
+            quantity: string;
+            /** Uom */
+            uom: string;
+        };
+        /** ShipmentOut */
+        ShipmentOut: {
+            /** Lines */
+            lines: components["schemas"]["ShipmentLineOut"][];
+            /** Number */
+            number: string;
+            /**
+             * Shipped On
+             * Format: date
+             */
+            shipped_on: string;
+            /** Warehouse */
+            warehouse: string;
         };
     };
     responses: never;
@@ -4167,6 +4334,283 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    create_order_pick_list_api_v1_sales_orders__number__pick_list_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PickListIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    record_order_pick_api_v1_sales_orders__number__pick_list_lines__line_no__post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+                line_no: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PickedQuantityIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    ship_sales_order_api_v1_sales_orders__number__shipments_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShipmentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
