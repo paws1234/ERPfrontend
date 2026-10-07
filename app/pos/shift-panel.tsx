@@ -22,7 +22,7 @@ import {
 } from "@/lib/pos";
 
 import { closeTill, moveDrawer, openTill, statePolicy } from "./actions";
-import { AmountRows, BUTTON, INPUT, Said } from "./ui";
+import { AmountRows, BUTTON, INPUT, LABEL, Said } from "./ui";
 
 /** One figure of the shift, printed exactly or said not to be an amount. */
 function Figure({ label, text }: { label: string; text: string | null | undefined }) {
@@ -122,7 +122,16 @@ export function ShiftPanel({
 
         <form action={movementForm} style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
           <input type="hidden" name="terminal" value={terminal} />
-          <select name="movement_type" defaultValue="paid_in" required style={INPUT}>
+          <label htmlFor={`movement-type-${terminal}`} style={LABEL}>
+            Movement
+          </label>
+          <select
+            id={`movement-type-${terminal}`}
+            name="movement_type"
+            defaultValue="paid_in"
+            required
+            style={INPUT}
+          >
             {MOVEMENT_TYPES.map((movementType) => (
               <option key={movementType} value={movementType}>
                 {movementType.replace("_", " ")}
