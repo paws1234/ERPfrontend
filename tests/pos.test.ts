@@ -204,6 +204,25 @@ test("an empty sale summarises to nothing rather than throwing", () => {
   assert.equal(summary.settled, false, "a basket with nothing on it is not paid");
 });
 
+test("a basket worth nothing is not settled, however its tenders read", () => {
+  const opened = sale({ total: "0.000000", net: "0.000000", tax: "0.000000" });
+  const summary = summariseTenders(opened);
+  assert.equal(summary.settled, false, "0 >= 0 is not payment");
+  assert.equal(summary.owed?.text, "0.000000");
+  // A tender against a basket worth nothing is not settlement either.
+  const tendered = summariseTenders(
+    sale({
+      total: "0.000000",
+      net: "0.000000",
+      tax: "0.000000",
+      tenders: [
+        { tender_no: 1, tender_type: "cash", tendered: "10.000000", applied: "0.000000", reference: null },
+      ],
+    }),
+  );
+  assert.equal(tendered.settled, false, "nothing to pay is not paid");
+});
+
 test("a sale that has ended takes no more scans", () => {
   assert.equal(isOpen(sale()), true);
   assert.equal(isOpen(sale({ status: "completed" })), false);

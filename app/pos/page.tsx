@@ -137,7 +137,10 @@ export default async function PosPage({
         </>
       )}
 
-      <Till terminal={terminal} currency={company.value?.base_currency ?? ""} />
+      {/* Keyed on the terminal: this is the one client component holding a basket, and a
+          change of terminal must not carry TILL-1's open sale over to TILL-2's shift —
+          the key drops that state rather than letting it be completed on the wrong till. */}
+      <Till key={terminal} terminal={terminal} currency={company.value?.base_currency ?? ""} />
 
       <div style={{ marginTop: "1rem" }}>
         <h2 style={{ fontSize: "1.1rem", margin: "0 0 0.5rem" }}>The day's Z-report</h2>

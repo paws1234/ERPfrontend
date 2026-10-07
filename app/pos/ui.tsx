@@ -1,6 +1,6 @@
 /**
- * The pieces every till control shares: the two styles, the one sentence a form shows,
- * and a receipt or a Z-report printed as the API stated it.
+ * The pieces every till control shares: the styles, the one sentence a form shows, and a
+ * receipt or a Z-report printed as the API stated it.
  *
  * There is no `"use client"` here on purpose — the page renders `AmountRows` on the
  * server and the till and the shift panel render it in the browser, and all three want
@@ -25,6 +25,13 @@ export const INPUT: CSSProperties = {
   minWidth: 0,
 };
 
+/** A control's own name, visible rather than a placeholder the field loses on typing. */
+export const LABEL: CSSProperties = {
+  alignSelf: "center",
+  color: "#5b6470",
+  fontSize: "0.85rem",
+};
+
 export const BUTTON: CSSProperties = {
   padding: "0.25rem 0.6rem",
   border: "1px solid #c9ced6",
@@ -42,6 +49,10 @@ export function Said({ state }: { state: SaidState | null }) {
   }
   return (
     <p
+      // A step's answer is put on the page after the fact, so it has to be announced:
+      // a refusal as an alert, a confirmation politely, rather than silently appearing.
+      role={state.ok ? "status" : "alert"}
+      aria-live={state.ok ? "polite" : "assertive"}
       style={{
         color: state.ok ? "#1c6b3a" : "#8a1c1c",
         margin: "0.25rem 0 0",

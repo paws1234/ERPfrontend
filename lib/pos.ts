@@ -169,7 +169,8 @@ export interface TenderSummary {
   owed: Money | null;
   /** Tenders whose amounts the till cannot read, on the sale as a whole. */
   invalid: number;
-  /** True only when the total is known, every tender is readable, and they cover it. */
+  /** True only when there is something to pay, the total is known, every tender is
+   *  readable, and they cover it. */
   settled: boolean;
 }
 
@@ -221,7 +222,11 @@ export function summariseTenders(sale: PosSale): TenderSummary {
     total,
     owed: total === null ? null : sum(total, negate(applied)),
     invalid,
-    settled: total !== null && invalid === 0 && applied.units >= total.units,
+    // A basket with nothing on it is worth nothing, and nothing is not paid: `0 >= 0`
+    // would call an empty till roll settled. The domain refuses to complete a sale
+    // worth nothing, so a total of zero is a sale that has not started.
+    settled:
+      total !== null && total.units > 0n && invalid === 0 && applied.units >= total.units,
   };
 }
 

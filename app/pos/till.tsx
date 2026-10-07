@@ -41,7 +41,7 @@ import {
   tenderSale,
   type TillState,
 } from "./actions";
-import { AmountRows, BUTTON, INPUT, Said } from "./ui";
+import { AmountRows, BUTTON, INPUT, LABEL, Said } from "./ui";
 
 /** The amount a money string reads as, at the platform's scale, or that it is not one. */
 function figure(text: string): string {
@@ -246,7 +246,16 @@ function TenderForm({ submit, pending, number }: FormProps) {
     <form action={submit} style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
       <input type="hidden" name="op" value="tender" />
       <input type="hidden" name="number" value={number} />
-      <select name="tender_type" defaultValue="cash" required style={INPUT}>
+      <label htmlFor={`tender-type-${number}`} style={LABEL}>
+        Tender type
+      </label>
+      <select
+        id={`tender-type-${number}`}
+        name="tender_type"
+        defaultValue="cash"
+        required
+        style={INPUT}
+      >
         {TENDER_TYPES.map((tenderType) => (
           <option key={tenderType} value={tenderType}>
             {tenderType}
@@ -303,14 +312,6 @@ export function Till({ terminal, currency }: { terminal: string; currency: strin
                   {pending ? "Working…" : "Complete — issue stock and post"}
                 </button>
               </form>
-              <form action={submit} style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-                <input type="hidden" name="op" value="void" />
-                <input type="hidden" name="number" value={sale.number} />
-                <input name="reason" placeholder="Why it is void" required style={INPUT} />
-                <button type="submit" disabled={pending} style={BUTTON}>
-                  Void
-                </button>
-              </form>
             </div>
           ) : (
             <p style={{ color: "#5b6470", margin: "0.5rem 0" }}>
@@ -318,6 +319,31 @@ export function Till({ terminal, currency }: { terminal: string; currency: strin
               the backend states that for certain, so a step it refuses says so above.
             </p>
           )}
+
+          {/* Offered whatever the status, like the receipt: on an open basket this
+              abandons it, and on a completed sale it is the refund the backend's own
+              state machine decides — taking it away the moment a sale completes would
+              remove the only control that can give the customer their money back. */}
+          <form
+            action={submit}
+            style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginTop: "0.5rem" }}
+          >
+            <input type="hidden" name="op" value="void" />
+            <input type="hidden" name="number" value={sale.number} />
+            <label htmlFor={`void-reason-${sale.number}`} style={LABEL}>
+              Why
+            </label>
+            <input
+              id={`void-reason-${sale.number}`}
+              name="reason"
+              placeholder="Why it is voided or refunded"
+              required
+              style={INPUT}
+            />
+            <button type="submit" disabled={pending} style={BUTTON}>
+              Void / refund
+            </button>
+          </form>
 
           {/* Always offered, whatever the status: reading a receipt is a read, and where the
               sale is in its life is the backend's to refuse rather than this file's guess. */}
