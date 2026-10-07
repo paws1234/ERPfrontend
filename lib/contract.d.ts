@@ -124,6 +124,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/companies/current/credit-check-mode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set Company Credit Check Mode
+         * @description State, change or withdraw this company's credit-check policy.
+         *
+         *     Plan §8 leaves the mode undecided, so the body carries a value or an explicit null
+         *     rather than relying on a default: "not stated" is a state a company may be in, and
+         *     the order-time check treats it as a refusal rather than as `off`.
+         *
+         *     Changing the mode is forward-looking only — decisions already recorded keep the mode
+         *     they were taken under, because each one stored it.
+         */
+        post: operations["set_company_credit_check_mode_api_v1_companies_current_credit_check_mode_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/coupons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Coupon
+         * @description File one coupon.
+         */
+        post: operations["create_coupon_api_v1_coupons_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/coupons/{code}/redeem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Redeem
+         * @description Use a coupon on a document, recording the use against that document.
+         *
+         *     The refusals are the point: an unknown code, one outside its window, one used to
+         *     its limit and one stacked past the allowance each answer with the reason, and none
+         *     of them writes a redemption.
+         */
+        post: operations["redeem_api_v1_coupons__code__redeem_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/currencies": {
         parameters: {
             query?: never;
@@ -370,6 +441,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/price-rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Price Rule
+         * @description File one pricing rule.
+         */
+        post: operations["create_price_rule_api_v1_price_rules_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/price-rules/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve Price Rule
+         * @description What the engine makes of one prospective line, and the order it decided in.
+         *
+         *     The tier comes from the customer when one is named, so a caller cannot price a
+         *     customer's order under a tier that customer does not sit in.
+         */
+        post: operations["resolve_price_rule_api_v1_price_rules_resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/quotations": {
         parameters: {
             query?: never;
@@ -569,6 +683,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sales-orders/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sales Order
+         * @description One order with its lifecycle and the credit decision taken at confirmation.
+         */
+        get: operations["sales_order_api_v1_sales_orders__number__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales-orders/{number}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Sales Order
+         * @description Confirm an order, applying the company's credit-check mode as it is placed.
+         *
+         *     The exposure is **stated by the caller** until T-3.AR.06 computes it across open
+         *     AR. The refusal a `block` breach produces is the point of the endpoint: it is the
+         *     one place an order stops being an intention.
+         */
+        post: operations["confirm_sales_order_api_v1_sales_orders__number__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales-orders/{number}/pick-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Order Pick List
+         * @description Draw the pick list for a confirmed order — exactly its lines, once.
+         */
+        post: operations["create_order_pick_list_api_v1_sales_orders__number__pick_list_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales-orders/{number}/pick-list/lines/{line_no}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Order Pick
+         * @description Record how much of one pick-list line was picked.
+         */
+        post: operations["record_order_pick_api_v1_sales_orders__number__pick_list_lines__line_no__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales-orders/{number}/shipments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ship Sales Order
+         * @description Ship named lines of a confirmed order, issuing stock out of one warehouse.
+         *
+         *     The refusal a second shipment for the same quantity produces is the point: what an
+         *     order still owes is read from the line, and shipping more is refused rather than
+         *     silently clamped.
+         */
+        post: operations["ship_sales_order_api_v1_sales_orders__number__shipments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -646,12 +868,142 @@ export interface components {
             base_currency: string;
             /** Code */
             code: string;
+            /** Credit Check Mode */
+            credit_check_mode?: string | null;
             /** Fiscal Year Start Month */
             fiscal_year_start_month: number;
             /** Id */
             id: string;
             /** Name */
             name: string;
+        };
+        /**
+         * ConfirmOrderIn
+         * @description What confirming an order needs: the customer's exposure, and any acceptance.
+         *
+         *     The **exposure is stated by the caller** until T-3.AR.06 computes it across open
+         *     AR — the path this task's own recorded stop chose. `acknowledge_breach` is the
+         *     acknowledgement `warn` mode requires: an explicit act, so a breach is never
+         *     accepted by the mere act of asking.
+         */
+        ConfirmOrderIn: {
+            /** Acknowledge Breach */
+            acknowledge_breach?: boolean | null;
+            /** Exposure */
+            exposure: string;
+        };
+        /**
+         * CouponIn
+         * @description A coupon as it is filed: its campaign, its discount and its own limits.
+         *
+         *     Every limit is stated here rather than defaulted, because the plan states none of
+         *     them: an omitted window is *always open* and an omitted usage limit is *no limit*,
+         *     which are different answers from "closed today" and "unusable".
+         */
+        CouponIn: {
+            /** Campaign */
+            campaign: string;
+            /** Code */
+            code: string;
+            /** Discount Type */
+            discount_type: string;
+            /** Discount Value */
+            discount_value: string;
+            /** Max Redemptions */
+            max_redemptions?: number | null;
+            /** Name */
+            name: string;
+            /** Stacking Allowance */
+            stacking_allowance: number;
+            /** Valid From */
+            valid_from?: string | null;
+            /** Valid Until */
+            valid_until?: string | null;
+        };
+        /** CouponOut */
+        CouponOut: {
+            /** Campaign */
+            campaign: string;
+            /** Code */
+            code: string;
+            /** Discount Type */
+            discount_type: string;
+            /** Discount Value */
+            discount_value: string;
+            /** Max Redemptions */
+            max_redemptions?: number | null;
+            /** Name */
+            name: string;
+            /** Stacking Allowance */
+            stacking_allowance: number;
+            /** Valid From */
+            valid_from?: string | null;
+            /** Valid Until */
+            valid_until?: string | null;
+        };
+        /**
+         * CouponRedeemIn
+         * @description Which document is using the coupon, and what the price is before it applies.
+         */
+        CouponRedeemIn: {
+            /** Base Price */
+            base_price: string;
+            /** Document Id */
+            document_id: string;
+            /** Document Type */
+            document_type: string;
+            /** On */
+            on?: string | null;
+        };
+        /** CouponRedemptionOut */
+        CouponRedemptionOut: {
+            /** Campaign */
+            campaign: string;
+            /** Code */
+            code: string;
+            /** Discount Amount */
+            discount_amount: string;
+            /** Document Id */
+            document_id: string;
+            /** Document Type */
+            document_type: string;
+        };
+        /**
+         * CreditCheckModeIn
+         * @description The policy a company is stating, or null to withdraw it (back to unstated).
+         */
+        CreditCheckModeIn: {
+            /** Mode */
+            mode: string | null;
+        };
+        /**
+         * CreditDecisionOut
+         * @description The order-time credit decision as it was recorded (T-3.SALES.04).
+         *
+         *     Every field is the value *at the moment of confirmation* — the mode then, the limit
+         *     then, the exposure then — which is why a later change to any of them leaves this
+         *     answer untouched.
+         */
+        CreditDecisionOut: {
+            /** Acknowledged By */
+            acknowledged_by?: string | null;
+            /** Breached */
+            breached: boolean;
+            /**
+             * Decided At
+             * Format: date-time
+             */
+            decided_at: string;
+            /** Exposure */
+            exposure: string;
+            /** Exposure After */
+            exposure_after: string;
+            /** Limit */
+            limit?: string | null;
+            /** Mode */
+            mode: string;
+            /** Order Value */
+            order_value: string;
         };
         /** CurrencyIn */
         CurrencyIn: {
@@ -861,8 +1213,14 @@ export interface components {
             priced_on: string;
             /** Quantity */
             quantity: string;
+            /** Remaining */
+            remaining: string;
             /** Rule Code */
             rule_code?: string | null;
+            /** Rule Priority */
+            rule_priority?: number | null;
+            /** Shipped */
+            shipped: string;
             /** Unit Price */
             unit_price: string;
             /** Uom */
@@ -873,6 +1231,11 @@ export interface components {
          * @description The order a quotation became, and the quotation it came from.
          */
         OrderOut: {
+            /** Confirmed At */
+            confirmed_at?: string | null;
+            /** Confirmed By */
+            confirmed_by?: string | null;
+            credit_decision?: components["schemas"]["CreditDecisionOut"] | null;
             /** Currency */
             currency?: string | null;
             /** Customer Code */
@@ -886,8 +1249,13 @@ export interface components {
              * Format: date
              */
             ordered_on: string;
+            pick_list?: components["schemas"]["PickListOut"] | null;
             /** Quotation */
             quotation?: string | null;
+            /** Shipments */
+            shipments: components["schemas"]["ShipmentOut"][];
+            /** Status */
+            status: string;
             /** Total */
             total: string;
         };
@@ -901,6 +1269,49 @@ export interface components {
             offset: number;
             /** Total */
             total: number;
+        };
+        /** PickListIn */
+        PickListIn: {
+            /** Number */
+            number: string;
+            /** On */
+            on?: string | null;
+        };
+        /**
+         * PickListLineOut
+         * @description One line of the picker's paper: what the order asks, and what was picked.
+         */
+        PickListLineOut: {
+            /** Item Sku */
+            item_sku?: string | null;
+            /** Line No */
+            line_no: number;
+            /** Picked Quantity */
+            picked_quantity: string;
+            /** Quantity */
+            quantity: string;
+            /** Uom */
+            uom: string;
+        };
+        /** PickListOut */
+        PickListOut: {
+            /**
+             * Created On
+             * Format: date
+             */
+            created_on: string;
+            /** Lines */
+            lines: components["schemas"]["PickListLineOut"][];
+            /** Number */
+            number: string;
+        };
+        /**
+         * PickedQuantityIn
+         * @description How much of one pick-list line was picked.
+         */
+        PickedQuantityIn: {
+            /** Quantity */
+            quantity: string;
         };
         /**
          * PipelineCardOut
@@ -1009,6 +1420,92 @@ export interface components {
             position: number;
         };
         /**
+         * PriceDecisionOut
+         * @description The engine's answer, with the whole ordering it decided in.
+         */
+        PriceDecisionOut: {
+            /** Base Price */
+            base_price: string;
+            /** Considered */
+            considered: components["schemas"]["PriceRuleOut"][];
+            /** Price */
+            price: string;
+            /** Rule Code */
+            rule_code?: string | null;
+            /** Rule Priority */
+            rule_priority?: number | null;
+        };
+        /**
+         * PriceQueryIn
+         * @description What to price, before any rule has been applied to it.
+         *
+         *     `base_price` is stated by the caller because the plan names no price list and the
+         *     item master holds none: the engine decides which rule applies and what it does, not
+         *     what the goods list at.
+         */
+        PriceQueryIn: {
+            /** Base Price */
+            base_price: string;
+            /** Customer Code */
+            customer_code?: string | null;
+            /** Item Sku */
+            item_sku?: string | null;
+            /** Quantity */
+            quantity?: string | null;
+            /** Tier */
+            tier?: string | null;
+        };
+        /**
+         * PriceRuleIn
+         * @description One rule as it is filed: its scope, and the discount it applies.
+         *
+         *     Every dimension is optional and an omitted one means **no constraint** — an absent
+         *     tier is any tier — while `discount_type` must be stated, because the ledger records
+         *     no default and a rule with an invented one would silently discount by the wrong
+         *     measure.
+         */
+        PriceRuleIn: {
+            /** Code */
+            code: string;
+            /** Discount Type */
+            discount_type: string;
+            /** Discount Value */
+            discount_value: string;
+            /** Item Sku */
+            item_sku?: string | null;
+            /** Max Quantity */
+            max_quantity?: string | null;
+            /** Min Quantity */
+            min_quantity?: string | null;
+            /** Name */
+            name: string;
+            /** Priority */
+            priority?: number | null;
+            /** Tier */
+            tier?: string | null;
+        };
+        /** PriceRuleOut */
+        PriceRuleOut: {
+            /** Code */
+            code: string;
+            /** Discount Type */
+            discount_type: string;
+            /** Discount Value */
+            discount_value: string;
+            /** Item Sku */
+            item_sku?: string | null;
+            /** Max Quantity */
+            max_quantity?: string | null;
+            /** Min Quantity */
+            min_quantity: string;
+            /** Name */
+            name: string;
+            /** Priority */
+            priority: number;
+            /** Tier */
+            tier?: string | null;
+        };
+        /**
          * QuotationForOpportunityIn
          * @description The number the quotation is filed under, and the day it is issued.
          */
@@ -1087,6 +1584,8 @@ export interface components {
             quantity: string;
             /** Rule Code */
             rule_code?: string | null;
+            /** Rule Priority */
+            rule_priority?: number | null;
             /** Unit Price */
             unit_price: string;
             /** Uom */
@@ -1325,6 +1824,59 @@ export interface components {
             responded: boolean;
             /** Valid Until */
             valid_until?: string | null;
+        };
+        /**
+         * ShipmentIn
+         * @description What a shipment needs: where from, and how much of which lines.
+         *
+         *     The lines come with the header because a shipment with nothing on it moves no
+         *     stock — the boundary refuses an empty list rather than storing a document that
+         *     describes nothing.
+         */
+        ShipmentIn: {
+            /** Lines */
+            lines: components["schemas"]["ShipmentLineIn"][];
+            /** Number */
+            number: string;
+            /** On */
+            on?: string | null;
+            /** Warehouse */
+            warehouse: string;
+        };
+        /** ShipmentLineIn */
+        ShipmentLineIn: {
+            /** Line No */
+            line_no: number;
+            /** Quantity */
+            quantity: string;
+        };
+        /**
+         * ShipmentLineOut
+         * @description One line as it left, and the stock movement that carried it out.
+         */
+        ShipmentLineOut: {
+            /** Line No */
+            line_no: number;
+            /** Movement */
+            movement?: string | null;
+            /** Quantity */
+            quantity: string;
+            /** Uom */
+            uom: string;
+        };
+        /** ShipmentOut */
+        ShipmentOut: {
+            /** Lines */
+            lines: components["schemas"]["ShipmentLineOut"][];
+            /** Number */
+            number: string;
+            /**
+             * Shipped On
+             * Format: date
+             */
+            shipped_on: string;
+            /** Warehouse */
+            warehouse: string;
         };
     };
     responses: never;
@@ -1798,6 +2350,278 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompanyOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    set_company_credit_check_mode_api_v1_companies_current_credit_check_mode_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreditCheckModeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    create_coupon_api_v1_coupons_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    redeem_api_v1_coupons__code__redeem_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponRedeemIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponRedemptionOut"];
                 };
             };
             /** @description The request could not be understood */
@@ -3027,6 +3851,186 @@ export interface operations {
             };
         };
     };
+    create_price_rule_api_v1_price_rules_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceRuleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceRuleOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    resolve_price_rule_api_v1_price_rules_resolve_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceQueryIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceDecisionOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
     new_quotation_api_v1_quotations_post: {
         parameters: {
             query?: never;
@@ -3770,6 +4774,463 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RfqOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    sales_order_api_v1_sales_orders__number__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    confirm_sales_order_api_v1_sales_orders__number__confirm_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmOrderIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    create_order_pick_list_api_v1_sales_orders__number__pick_list_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PickListIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    record_order_pick_api_v1_sales_orders__number__pick_list_lines__line_no__post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+                line_no: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PickedQuantityIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    ship_sales_order_api_v1_sales_orders__number__shipments_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShipmentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOut"];
                 };
             };
             /** @description The request could not be understood */
