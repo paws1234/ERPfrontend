@@ -50,6 +50,12 @@ export default async function LedgerPage() {
         {version ? ` · API ${version.version}` : ""}
       </p>
 
+      <p style={{ color: "#5b6470" }}>
+        <a href="/pos" style={{ color: "#1d4ed8" }}>
+          Point of sale
+        </a>
+      </p>
+
       {failure ? (
         <div
           style={{
