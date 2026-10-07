@@ -226,7 +226,11 @@ export function summariseTenders(sale: PosSale): TenderSummary {
     // would call an empty till roll settled. The domain refuses to complete a sale
     // worth nothing, so a total of zero is a sale that has not started.
     settled:
-      total !== null && total.units > 0n && invalid === 0 && applied.units >= total.units,
+      sale.lines.length > 0 &&
+      total !== null &&
+      total.units > 0n &&
+      invalid === 0 &&
+      applied.units >= total.units,
   };
 }
 

@@ -59,6 +59,20 @@ function sale(overrides: Partial<PosSale> = {}): PosSale {
   };
 }
 
+function line(): PosSale["lines"][number] {
+  return {
+    barcode: null,
+    description: "Item",
+    line_no: 1,
+    quantity: "1.000000",
+    rule: null,
+    tax: "0.000000",
+    tax_rule: null,
+    unit_price: "60.000000",
+    uom: "each",
+  };
+}
+
 function stubFetch(status: number, body: unknown) {
   const calls: Array<{ url: string; init: RequestInit }> = [];
   globalThis.fetch = (async (url: string | URL, init?: RequestInit) => {
@@ -110,6 +124,7 @@ test("tenders are summed exactly, per type, and binary floating point is not use
     sale({
       tendered: "60.000000",
       total: "60.000000",
+      lines: [line()],
       tenders: [
         { tender_no: 1, tender_type: "cash", tendered: "0.1", applied: "0.1", reference: null },
         { tender_no: 2, tender_type: "cash", tendered: "0.2", applied: "0.2", reference: null },
@@ -171,6 +186,7 @@ test("over-tendering is settled, and what was over comes back as change", () => 
   const summary = summariseTenders(
     sale({
       total: "100.000000",
+      lines: [line()],
       tenders: [
         { tender_no: 1, tender_type: "cash", tendered: "120.0", applied: "100.0", reference: null },
       ],
@@ -202,6 +218,17 @@ test("an empty sale summarises to nothing rather than throwing", () => {
   assert.equal(summary.applied.text, "0.000000");
   assert.equal(summary.invalid, 0);
   assert.equal(summary.settled, false, "a basket with nothing on it is not paid");
+});
+
+test("an empty basket is not settled even when its stated total is covered", () => {
+  const summary = summariseTenders(
+    sale({
+      tenders: [
+        { tender_no: 1, tender_type: "cash", tendered: "115.0", applied: "115.0", reference: null },
+      ],
+    }),
+  );
+  assert.equal(summary.settled, false);
 });
 
 test("a basket worth nothing is not settled, however its tenders read", () => {
