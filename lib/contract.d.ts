@@ -151,6 +151,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/coupons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Coupon
+         * @description File one coupon.
+         */
+        post: operations["create_coupon_api_v1_coupons_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/coupons/{code}/redeem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Redeem
+         * @description Use a coupon on a document, recording the use against that document.
+         *
+         *     The refusals are the point: an unknown code, one outside its window, one used to
+         *     its limit and one stacked past the allowance each answer with the reason, and none
+         *     of them writes a redemption.
+         */
+        post: operations["redeem_api_v1_coupons__code__redeem_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/currencies": {
         parameters: {
             query?: never;
@@ -847,6 +891,82 @@ export interface components {
             acknowledge_breach?: boolean | null;
             /** Exposure */
             exposure: string;
+        };
+        /**
+         * CouponIn
+         * @description A coupon as it is filed: its campaign, its discount and its own limits.
+         *
+         *     Every limit is stated here rather than defaulted, because the plan states none of
+         *     them: an omitted window is *always open* and an omitted usage limit is *no limit*,
+         *     which are different answers from "closed today" and "unusable".
+         */
+        CouponIn: {
+            /** Campaign */
+            campaign: string;
+            /** Code */
+            code: string;
+            /** Discount Type */
+            discount_type: string;
+            /** Discount Value */
+            discount_value: string;
+            /** Max Redemptions */
+            max_redemptions?: number | null;
+            /** Name */
+            name: string;
+            /** Stacking Allowance */
+            stacking_allowance: number;
+            /** Valid From */
+            valid_from?: string | null;
+            /** Valid Until */
+            valid_until?: string | null;
+        };
+        /** CouponOut */
+        CouponOut: {
+            /** Campaign */
+            campaign: string;
+            /** Code */
+            code: string;
+            /** Discount Type */
+            discount_type: string;
+            /** Discount Value */
+            discount_value: string;
+            /** Max Redemptions */
+            max_redemptions?: number | null;
+            /** Name */
+            name: string;
+            /** Stacking Allowance */
+            stacking_allowance: number;
+            /** Valid From */
+            valid_from?: string | null;
+            /** Valid Until */
+            valid_until?: string | null;
+        };
+        /**
+         * CouponRedeemIn
+         * @description Which document is using the coupon, and what the price is before it applies.
+         */
+        CouponRedeemIn: {
+            /** Base Price */
+            base_price: string;
+            /** Document Id */
+            document_id: string;
+            /** Document Type */
+            document_type: string;
+            /** On */
+            on?: string | null;
+        };
+        /** CouponRedemptionOut */
+        CouponRedemptionOut: {
+            /** Campaign */
+            campaign: string;
+            /** Code */
+            code: string;
+            /** Discount Amount */
+            discount_amount: string;
+            /** Document Id */
+            document_id: string;
+            /** Document Type */
+            document_type: string;
         };
         /**
          * CreditCheckModeIn
@@ -2320,6 +2440,188 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompanyOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    create_coupon_api_v1_coupons_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    redeem_api_v1_coupons__code__redeem_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponRedeemIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponRedemptionOut"];
                 };
             };
             /** @description The request could not be understood */
