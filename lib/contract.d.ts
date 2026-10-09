@@ -391,6 +391,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/org-chart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Org Chart View
+         * @description The reporting hierarchy on `on`, including the people it cannot place.
+         *
+         *     The date is stated rather than assumed to be today, so the same request draws the
+         *     current structure and any past one. Fields a role may not read are **absent** from the
+         *     payload rather than nulled: the restrictions of both entities the chart reads are read
+         *     once, not once per employee, and the response is returned unfiltered by a model for
+         *     that reason (a model's defaults would put a null back where a field was withheld).
+         */
+        get: operations["org_chart_view_api_v1_org_chart_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pipeline/board": {
         parameters: {
             query?: never;
@@ -1590,6 +1616,53 @@ export interface components {
             status: string;
             /** Total */
             total: string;
+        };
+        /**
+         * OrgChartEntryOut
+         * @description One person's place in the hierarchy on the date asked about.
+         */
+        OrgChartEntryOut: {
+            /** Cost Centre */
+            cost_centre?: string | null;
+            /** Department */
+            department?: string | null;
+            /** Depth */
+            depth: number;
+            /** Manager Number */
+            manager_number?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Number */
+            number: string;
+            /** Reports */
+            reports: number;
+        };
+        /**
+         * OrgChartOut
+         * @description The hierarchy on one date: one root, everybody under it, and who is not in the tree.
+         */
+        OrgChartOut: {
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Entries */
+            entries: components["schemas"]["OrgChartEntryOut"][];
+            /** Root Number */
+            root_number?: string | null;
+            /** Unplaced */
+            unplaced: components["schemas"]["OrgChartUnplacedOut"][];
+        };
+        /**
+         * OrgChartUnplacedOut
+         * @description Somebody the tree cannot draw — never placed, or their manager is not a live employee.
+         */
+        OrgChartUnplacedOut: {
+            /** Name */
+            name?: string | null;
+            /** Number */
+            number: string;
         };
         /** PageOut */
         PageOut: {
@@ -4120,6 +4193,94 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QuotationOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    org_chart_view_api_v1_org_chart_get: {
+        parameters: {
+            query: {
+                on: string;
+            };
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrgChartOut"];
                 };
             };
             /** @description The request could not be understood */
