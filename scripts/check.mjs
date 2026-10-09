@@ -58,6 +58,8 @@ for (const path of [
   "app/pipeline/page.tsx",
   "app/pipeline/actions.ts",
   "app/pipeline/board-actions.tsx",
+  "app/org-chart/page.tsx",
+  "lib/org.ts",
   "app/pos/page.tsx",
   "app/pos/actions.ts",
   "app/pos/till.tsx",

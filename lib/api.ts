@@ -34,6 +34,8 @@ export type PipelineColumn = components["schemas"]["PipelineColumnOut"];
 export type Opportunity = components["schemas"]["OpportunityOut"];
 /** T-3.SALES.02: the document a won opportunity produced. */
 export type Quotation = components["schemas"]["QuotationOut"];
+/** T-5.EMP.02: the reporting hierarchy on one date, and who it cannot place. */
+export type OrgChart = components["schemas"]["OrgChartOut"];
 
 /** The paths this client speaks, read straight out of the contract. */
 export type LedgerListPath = paths["/api/v1/journal-entries"]["get"];
@@ -161,6 +163,19 @@ export function readRfq(identity: Identity, number: string): Promise<Rfq> {
  */
 export function readPipelineBoard(identity: Identity): Promise<PipelineColumn[]> {
   return request<PipelineColumn[]>("/api/v1/pipeline/board", identity);
+}
+
+/**
+ * T-5.EMP.02 — the reporting hierarchy on a date, as the API states it.
+ *
+ * Read-only, and **dated by the request**: the date is passed rather than assumed, so the
+ * same call draws today's structure and any past one, and a screen that shows "as of" is
+ * showing what it actually asked for. The payload is already in chart order with each
+ * line's depth, because the structure is the backend's to decide; `lib/org` turns that
+ * into indents, labels and totals.
+ */
+export function readOrgChart(identity: Identity, on: string): Promise<OrgChart> {
+  return request<OrgChart>(`/api/v1/org-chart?on=${encodeURIComponent(on)}`, identity);
 }
 
 /**
