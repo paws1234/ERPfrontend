@@ -25,6 +25,7 @@ import { ApiFailure, NotPermitted, Unauthenticated, instanceIdentity } from "@/l
 import {
   closeShift,
   completeSale,
+  syncQueuedSales,
   isMovementType,
   isTenderType,
   openSale,
@@ -38,6 +39,8 @@ import {
   type PosSale,
   type Receipt,
 } from "@/lib/pos";
+
+import { syncBody, type QueuedSale } from "@/lib/offline";
 
 import type { SaidState } from "./ui";
 
@@ -301,6 +304,58 @@ export async function statePolicy(
         company.cash_drawer_required === null || company.cash_drawer_required === undefined
           ? `${company.code} states no cash-drawer policy.`
           : `${company.code}: tills ${company.cash_drawer_required ? "must" : "need not"} trade inside an open shift.`,
+    };
+  } catch (error) {
+    return { ok: false, message: describe(error) };
+  }
+}
+
+/** What a replay answered: the sentence, and the report the terminal applies to its queue. */
+export interface QueueState extends SaidState {
+  /** The run's report as the API stated it, for the queue in the terminal to be read off. */
+  report?: unknown;
+}
+
+/**
+ * Replay the terminal's offline queue (T-6.OFFLINE.01).
+ *
+ * The queue is the browser's — it holds what the till sold while the network was away —
+ * so it arrives as a form field and is sent as the request body. The batch carries the
+ * terminal's own idempotency key, so a replay that is itself retried answers with the
+ * first report instead of selling the queue twice; a report that came back is applied to
+ * the queue by the panel, which drops what was accepted and keeps what was refused.
+ */
+export async function replayQueue(
+  _previous: QueueState | null,
+  form: FormData,
+): Promise<QueueState> {
+  const queued = field(form, "queue");
+  let sales: QueuedSale[];
+  try {
+    sales = queued === "" ? [] : (JSON.parse(queued) as QueuedSale[]);
+  } catch {
+    return { ok: false, message: "The queue this terminal sent is not readable." };
+  }
+  if (sales.length === 0) {
+    return { ok: false, message: "This terminal has nothing queued." };
+  }
+  const terminal = field(form, "terminal");
+  const locationCode = field(form, "location_code");
+  try {
+    const answer = await syncQueuedSales(
+      instanceIdentity(),
+      syncBody(terminal, locationCode, field(form, "oversell_allowed") === "true", sales),
+      // The terminal names the batch by the sale it starts with, so a resend of the same
+      // queue is the same batch — and the numbers inside it are checked as well.
+      `${terminal}-${sales[0]?.number ?? "queue"}`,
+    );
+    const report = answer.report as { accepted?: number; duplicates?: number; rejected?: number };
+    return {
+      ok: true,
+      message:
+        `${terminal}: ${report.accepted ?? 0} accepted, ${report.duplicates ?? 0} already` +
+        ` stored, ${report.rejected ?? 0} refused.`,
+      report: answer.report,
     };
   } catch (error) {
     return { ok: false, message: describe(error) };

@@ -413,6 +413,24 @@ export async function saleReceipt(identity: Identity, number: string): Promise<R
   return body.receipt;
 }
 
+/**
+ * Replay a terminal's offline queue (T-6.OFFLINE.01).
+ *
+ * The body is the queue itself, and the key is the terminal's own for the batch: a
+ * replay that arrives twice answers with the first report instead of selling twice.
+ */
+export function syncQueuedSales(
+  identity: Identity,
+  body: unknown,
+  idempotencyKey: string,
+): Promise<components["schemas"]["PosSyncOut"]> {
+  return request<components["schemas"]["PosSyncOut"]>("/api/v1/pos/sync", identity, {
+    method: "POST",
+    headers: { "Idempotency-Key": idempotencyKey },
+    body: JSON.stringify(body),
+  });
+}
+
 /** Void an abandoned basket, or refund a completed sale — either way, with a reason. */
 export function voidSale(identity: Identity, number: string, reason: string): Promise<PosSale> {
   return request<PosSale>(`/api/v1/pos/sales/${encodeURIComponent(number)}/void`, identity, {

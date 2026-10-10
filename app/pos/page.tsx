@@ -20,6 +20,9 @@ import {
   type ZReport,
 } from "@/lib/pos";
 
+import { oversellAllowed } from "@/lib/offline";
+
+import { OfflineSheet } from "./offline";
 import { ShiftPanel } from "./shift-panel";
 import { Till } from "./till";
 import { AmountRows, BUTTON, INPUT } from "./ui";
@@ -128,6 +131,11 @@ export default async function PosPage({
         <>
           {shift.failure ? <Notice failure={shift.failure} /> : null}
           {shiftZ.failure ? <Notice failure={shiftZ.failure} /> : null}
+          <OfflineSheet
+            terminal={terminal}
+            allowOversell={oversellAllowed(process.env.POS_OFFLINE_OVERSELL)}
+          />
+
           <ShiftPanel
             terminal={terminal}
             shift={shift.value}
