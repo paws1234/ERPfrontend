@@ -18,6 +18,9 @@
  *    own image
  * 6. the client's 401/403 handling is what the shell relies on, and every test in
  *    `tests/` passes — including the comparative statement matrix (T-2.PROC.04)
+ * 7. the identity the API trusts stays on the server (T-6.HARD.02): `lib/api.ts`,
+ *    which asserts `X-Actor`/`X-Company-Id`, is imported only from server code,
+ *    and no `NEXT_PUBLIC_` value is inlined into the browser bundle
  */
 
 import { execFileSync } from "node:child_process";
@@ -65,6 +68,14 @@ for (const path of [
   "app/pos/till.tsx",
   "app/pos/shift-panel.tsx",
   "app/pos/ui.tsx",
+  "app/pos/offline.tsx",
+  "lib/offline.ts",
+  "app/portal/page.tsx",
+  "app/portal/actions.ts",
+  "app/portal/writes.tsx",
+  "lib/portal.ts",
+  "app/dashboard/page.tsx",
+  "lib/dashboard.ts",
 ]) {
   const source = readFileSync(resolve(root, path), "utf8");
   for (const forbidden of ["DATABASE_URL", "postgres://", "postgresql://", "psycopg", "ERPbackend"]) {
@@ -145,6 +156,38 @@ if (
   ])
 ) {
   console.log("401 asks for a session and 403 is explained, both without breaking the shell");
+}
+
+// 7 — the identity the API trusts stays on the server (T-6.HARD.02)
+//
+// The API takes `X-Actor` and `X-Company-Id` from the request, so an identity asserted by a
+// browser is an identity anyone can claim. `lib/api.ts` is where those headers are set: it must
+// stay importable only from the server, and no value may be inlined into the browser bundle.
+function sourceFiles(dir) {
+  return readdirSync(resolve(root, dir), { withFileTypes: true }).flatMap((entry) => {
+    const path = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) return entry.name === "node_modules" ? [] : sourceFiles(path);
+    return entry.name.endsWith(".ts") || entry.name.endsWith(".tsx") ? [path] : [];
+  });
+}
+let clientFiles = 0;
+for (const path of [...sourceFiles("app"), ...sourceFiles("lib")]) {
+  const source = readFileSync(resolve(root, path), "utf8");
+  if (source.includes("NEXT_PUBLIC_")) {
+    problems.push(`${path} inlines a value into the browser bundle: NEXT_PUBLIC_`);
+  }
+  if (source.includes('"use client"') || source.includes("'use client'")) {
+    clientFiles += 1;
+    if (/from\s+["'][^"']*\blib\/api["']/.test(source)) {
+      problems.push(`${path} is a client component importing lib/api, which asserts the actor`);
+    }
+  }
+}
+if (problems.length === 0) {
+  console.log(
+    `the identity the API trusts is set server-side only (${clientFiles} client components,`
+      + " none of them importing lib/api; no NEXT_PUBLIC_ value anywhere)",
+  );
 }
 
 if (problems.length > 0) {

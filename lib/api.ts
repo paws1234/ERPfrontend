@@ -36,6 +36,10 @@ export type Opportunity = components["schemas"]["OpportunityOut"];
 export type Quotation = components["schemas"]["QuotationOut"];
 /** T-5.EMP.02: the reporting hierarchy on one date, and who it cannot place. */
 export type OrgChart = components["schemas"]["OrgChartOut"];
+/** T-6.ANALYTICS.01: the dashboard's tiles, and what each of them reconciles to. */
+export type Dashboard = components["schemas"]["DashboardOut"];
+export type DashboardTile = components["schemas"]["DashboardTileOut"];
+export type DashboardWithheld = components["schemas"]["DashboardWithheldOut"];
 
 /** The paths this client speaks, read straight out of the contract. */
 export type LedgerListPath = paths["/api/v1/journal-entries"]["get"];
@@ -258,6 +262,31 @@ export function convertOpportunity(
     identity,
     { method: "POST", body: JSON.stringify({ number, issued_on: issuedOn }) },
   );
+}
+
+/**
+ * T-6.ANALYTICS.01 — the dashboard, as the API states it.
+ *
+ * Read-only, and **always** read fresh: the request asks for the ledger as it stands, so a
+ * refresh is a reload rather than a wait for a job. `drillDown` asks one tile for the rows its
+ * figure was computed from — the same run, not a second query — which is what makes a figure
+ * here openable in one step. A tile the caller may not see is simply not in `tiles`; it is
+ * named in `withheld` instead, and the page shows that rather than a zero.
+ */
+export function readDashboard(
+  identity: Identity,
+  {
+    asOf,
+    start,
+    drillDown,
+  }: { asOf?: string; start?: string; drillDown?: string } = {},
+): Promise<Dashboard> {
+  const query = new URLSearchParams();
+  if (asOf) query.set("as_of", asOf);
+  if (start) query.set("start", start);
+  if (drillDown) query.set("drill_down", drillDown);
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+  return request<Dashboard>(`/api/v1/dashboard${suffix}`, identity);
 }
 
 /**
