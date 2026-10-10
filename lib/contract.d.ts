@@ -219,6 +219,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Dashboard
+         * @description The tiles this subject may see, with the records behind one of them.
+         *
+         *     Read fresh on every request and stamped with its own `generated_at`, so what a reader
+         *     sees is the ledger as it stands rather than a snapshot from last night. A tile the
+         *     caller may not see is absent and named in `withheld` with the refusal's sentence — the
+         *     figure is not zeroed — and the refusal is on the trail like every other. Asking for a
+         *     tile's `drill_down` returns the rows that figure was computed from, in one step.
+         */
+        get: operations["read_dashboard_api_v1_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/fx-rates": {
         parameters: {
             query?: never;
@@ -461,6 +487,86 @@ export interface paths {
          *     give a column its meaning while the name stays the company's own.
          */
         post: operations["new_pipeline_stage_api_v1_pipeline_stages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Portal View
+         * @description Everything this supplier may see — its RFQs, its released orders and its invoices.
+         */
+        get: operations["portal_view_api_v1_portal_documents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Portal Invoice
+         * @description Submit an invoice as a draft — posting and matching stay the buyer's review.
+         */
+        post: operations["portal_invoice_api_v1_portal_invoices_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/orders/{number}/acknowledge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Portal Acknowledge Order
+         * @description Take one of this supplier's orders on — the domain's own transition, once.
+         */
+        post: operations["portal_acknowledge_order_api_v1_portal_orders__number__acknowledge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/rfqs/{number}/responses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Portal Rfq Response
+         * @description Submit this supplier's answer — the same record an internally captured one is.
+         */
+        post: operations["portal_rfq_response_api_v1_portal_rfqs__number__responses_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -710,6 +816,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pos/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sync Pos Sales
+         * @description Replay a terminal's queued sales — retry-safe by key *and* by the till's numbers.
+         *
+         *     The whole queue is one report, and each sale in it is completed through
+         *     T-3.POS.01's own calls, so what a synced sale posts is what an online one posts.
+         *     A sale the location cannot fill is refused and named in the report rather than
+         *     completing against a negative location.
+         */
+        post: operations["sync_pos_sales_api_v1_pos_sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pos/sync/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Pos Sync Reports
+         * @description The company's sync runs (one terminal's, where one is named), oldest first.
+         */
+        get: operations["list_pos_sync_reports_api_v1_pos_sync_reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pos/z-reports/day": {
         parameters: {
             query?: never;
@@ -900,6 +1051,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/catalogue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Report Catalogue
+         * @description What can be scheduled, with each report's scope, period and capability.
+         *
+         *     Read rather than delivered: an operator scheduling the month-end pack needs to know what
+         *     the platform produces and what it takes to see each one (T-6.ANALYTICS.02). What is
+         *     *registered* for this company is `report_definition`'s own rows.
+         */
+        get: operations["read_report_catalogue_api_v1_reports_catalogue_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/{code}/run": {
         parameters: {
             query?: never;
@@ -911,12 +1086,14 @@ export interface paths {
         put?: never;
         /**
          * Run Report Now
-         * @description Run one registered report for this company, and deliver it to its recipients.
+         * @description Run one registered report for this company and period, and deliver it to its recipients.
          *
          *     The capability the definition carries is asked for by the framework itself
          *     (T-0.REPORT.01), so a caller who may not see the report is refused before
          *     anything is built — and a builder that fails leaves a `failed` run, not a
-         *     silent absence.
+         *     silent absence. Running a period that was already delivered leaves a `skipped`
+         *     run and sends nothing: the same report for the same period does not arrive twice,
+         *     while a period that *failed* is retried as an ordinary run.
          */
         post: operations["run_report_now_api_v1_reports__code__run_post"];
         delete?: never;
@@ -1166,6 +1343,33 @@ export interface components {
             /** Required */
             required?: boolean | null;
         };
+        /**
+         * CatalogueEntryOut
+         * @description One report an operator can schedule: what it covers, over how long, and who may.
+         */
+        CatalogueEntryOut: {
+            /** Built */
+            built: boolean;
+            /** Capability */
+            capability: string;
+            /** Code */
+            code: string;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /** Period */
+            period: string;
+            /** Schedule */
+            schedule: string;
+            /** Scope */
+            scope: string;
+        };
+        /** CatalogueOut */
+        CatalogueOut: {
+            /** Entries */
+            entries: components["schemas"]["CatalogueEntryOut"][];
+        };
         /** CoaImportIn */
         CoaImportIn: {
             /** Market */
@@ -1340,6 +1544,74 @@ export interface components {
             code: string;
             /** Name */
             name: string;
+        };
+        /** DashboardOut */
+        DashboardOut: {
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Drill Down */
+            drill_down?: string | null;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /** Tiles */
+            tiles: components["schemas"]["DashboardTileOut"][];
+            /** Withheld */
+            withheld: components["schemas"]["DashboardWithheldOut"][];
+        };
+        /**
+         * DashboardTileOut
+         * @description One figure, what it has to agree with, and (when asked) the rows behind it.
+         */
+        DashboardTileOut: {
+            /** Basis */
+            basis?: {
+                [key: string]: unknown;
+            }[] | null;
+            /** Basis Label */
+            basis_label: string;
+            /** Basis Rows */
+            basis_rows?: number | null;
+            /** Basis Truncated */
+            basis_truncated?: boolean | null;
+            /** Capability */
+            capability: string;
+            /** Code */
+            code: string;
+            /** Figures */
+            figures: {
+                [key: string]: unknown;
+            };
+            /** Label */
+            label: string;
+            /** Reconciled To */
+            reconciled_to: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * DashboardWithheldOut
+         * @description A tile this subject may not see: named, with the refusal's own sentence and no figure.
+         */
+        DashboardWithheldOut: {
+            /** Capability */
+            capability: string;
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
+            /** Reason */
+            reason: string;
         };
         /**
          * DrawerMovementIn
@@ -1824,6 +2096,80 @@ export interface components {
             /** Position */
             position: number;
         };
+        /**
+         * PortalDocumentsOut
+         * @description What this supplier may see: its RFQs, its orders and its invoices.
+         */
+        PortalDocumentsOut: {
+            /** Documents */
+            documents: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * PortalInvoiceIn
+         * @description A supplier's invoice against an order, as it is submitted.
+         */
+        PortalInvoiceIn: {
+            /**
+             * Invoice Date
+             * Format: date
+             */
+            invoice_date: string;
+            /** Lines */
+            lines: components["schemas"]["PortalLineIn"][];
+            /** Number */
+            number: string;
+            /** Order Number */
+            order_number?: string | null;
+            /** Supplier Reference */
+            supplier_reference: string;
+        };
+        /**
+         * PortalLineIn
+         * @description One line a supplier states: the RFQ's own line number, or an invoice line.
+         */
+        PortalLineIn: {
+            /** Description */
+            description?: string | null;
+            /** Line No */
+            line_no: number;
+            /** Quantity */
+            quantity?: string | null;
+            /** Unit Price */
+            unit_price: string;
+        };
+        /**
+         * PortalResponseIn
+         * @description A supplier's answer to an RFQ, line by line.
+         */
+        PortalResponseIn: {
+            /** Currency */
+            currency?: string | null;
+            /** Lead Time Days */
+            lead_time_days?: number | null;
+            /** Lines */
+            lines: components["schemas"]["PortalLineIn"][];
+            /** Note */
+            note?: string | null;
+            /**
+             * Received On
+             * Format: date
+             */
+            received_on: string;
+            /** Valid Until */
+            valid_until?: string | null;
+        };
+        /**
+         * PortalWriteOut
+         * @description What a portal write recorded, as the supplier reads it back.
+         */
+        PortalWriteOut: {
+            /** Recorded */
+            recorded: {
+                [key: string]: unknown;
+            };
+        };
         /** PosLineOut */
         PosLineOut: {
             /** Barcode */
@@ -1970,6 +2316,86 @@ export interface components {
             variance: string | null;
             /** Variance Reason */
             variance_reason: string | null;
+        };
+        /**
+         * PosSyncIn
+         * @description A terminal's whole queue, and the policy it was trading under offline.
+         */
+        PosSyncIn: {
+            /** Location Code */
+            location_code: string;
+            /** Oversell Allowed */
+            oversell_allowed?: boolean | null;
+            /** Sales */
+            sales: components["schemas"]["PosSyncSaleIn"][];
+            /** Terminal */
+            terminal: string;
+        };
+        /**
+         * PosSyncLineIn
+         * @description One queued line as the till rang it: the code, the shelf price and how many.
+         */
+        PosSyncLineIn: {
+            /** Barcode */
+            barcode: string;
+            /** Base Price */
+            base_price: string;
+            /** Campaign */
+            campaign?: string | null;
+            /** Quantity */
+            quantity?: string | null;
+            /** Uom */
+            uom?: string | null;
+        };
+        /**
+         * PosSyncOut
+         * @description The run's one reconciliation report: its counts, its outcomes and its differences.
+         */
+        PosSyncOut: {
+            /** Report */
+            report: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * PosSyncReportsOut
+         * @description A terminal's sync runs, in the order it made them — one per run, never per sale.
+         */
+        PosSyncReportsOut: {
+            /** Reports */
+            reports: {
+                [key: string]: unknown;
+            }[];
+        };
+        /**
+         * PosSyncSaleIn
+         * @description One sale rung up while the terminal was away, under the number the till gave it.
+         */
+        PosSyncSaleIn: {
+            /** Currency */
+            currency?: string | null;
+            /** Customer Code */
+            customer_code?: string | null;
+            /** Lines */
+            lines: components["schemas"]["PosSyncLineIn"][];
+            /** Number */
+            number: string;
+            /** Sold On */
+            sold_on?: string | null;
+            /** Tenders */
+            tenders: components["schemas"]["PosSyncTenderIn"][];
+        };
+        /**
+         * PosSyncTenderIn
+         * @description One queued payment: what kind, how much, and its reference.
+         */
+        PosSyncTenderIn: {
+            /** Amount */
+            amount: string;
+            /** Reference */
+            reference?: string | null;
+            /** Tender Type */
+            tender_type: string;
         };
         /**
          * PosTenderIn
@@ -2244,6 +2670,8 @@ export interface components {
             code: string;
             /** Name */
             name: string;
+            /** Period */
+            period?: string | null;
             /** Recipients */
             recipients: string[];
             /** Schedule */
@@ -2257,6 +2685,8 @@ export interface components {
             code: string;
             /** Name */
             name: string;
+            /** Period */
+            period: string;
             /** Recipients */
             recipients: string[];
             /** Schedule */
@@ -2270,12 +2700,16 @@ export interface components {
             delivered_to?: string[] | null;
             /** Error */
             error?: string | null;
+            /** Period */
+            period?: string | null;
             /** Produced */
             produced?: {
                 [key: string]: unknown;
             } | null;
             /** Status */
             status: string;
+            /** Withheld Recipients */
+            withheld_recipients?: components["schemas"]["WithheldRecipientOut"][] | null;
         };
         /**
          * RfqBasisOut
@@ -2462,6 +2896,16 @@ export interface components {
             shipped_on: string;
             /** Warehouse */
             warehouse: string;
+        };
+        /**
+         * WithheldRecipientOut
+         * @description A recipient the run did not deliver to, and why — a subject without the capability.
+         */
+        WithheldRecipientOut: {
+            /** Reason */
+            reason: string;
+            /** Recipient */
+            recipient: string;
         };
     };
     responses: never;
@@ -3383,6 +3827,96 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CurrencyOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    read_dashboard_api_v1_dashboard_get: {
+        parameters: {
+            query?: {
+                as_of?: string | null;
+                start?: string | null;
+                drill_down?: string | null;
+            };
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
                 };
             };
             /** @description The request could not be understood */
@@ -4457,6 +4991,362 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PipelineStageOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    portal_view_api_v1_portal_documents_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalDocumentsOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    portal_invoice_api_v1_portal_invoices_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortalInvoiceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalWriteOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    portal_acknowledge_order_api_v1_portal_orders__number__acknowledge_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalWriteOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    portal_rfq_response_api_v1_portal_rfqs__number__responses_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortalResponseIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalWriteOut"];
                 };
             };
             /** @description The request could not be understood */
@@ -5605,6 +6495,185 @@ export interface operations {
             };
         };
     };
+    sync_pos_sales_api_v1_pos_sync_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PosSyncIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PosSyncOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    list_pos_sync_reports_api_v1_pos_sync_reports_get: {
+        parameters: {
+            query?: {
+                terminal?: string | null;
+            };
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PosSyncReportsOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
     pos_day_report_api_v1_pos_z_reports_day_get: {
         parameters: {
             query: {
@@ -6413,9 +7482,97 @@ export interface operations {
             };
         };
     };
-    run_report_now_api_v1_reports__code__run_post: {
+    read_report_catalogue_api_v1_reports_catalogue_get: {
         parameters: {
             query?: never;
+            header: {
+                "x-company-id": string;
+                "x-actor"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogueOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    run_report_now_api_v1_reports__code__run_post: {
+        parameters: {
+            query?: {
+                period?: string | null;
+            };
             header: {
                 "x-company-id": string;
                 "x-actor"?: string;
