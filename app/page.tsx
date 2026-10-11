@@ -8,36 +8,32 @@
  */
 
 import {
-  describeFailure,
-  listJournalEntries,
   companyProfile,
   health,
-  type Identity,
+  listJournalEntries,
   type JournalPage,
 } from "@/lib/api";
-
-// The instance's own identity, from the environment at start — no rebuild.
-const IDENTITY: Identity = {
-  companyId: process.env.COMPANY_ID ?? "00000000-0000-0000-0000-000000000000",
-  actor: process.env.ACTOR ?? "shell",
-};
+import { sessionCookie, sessionFailure } from "@/lib/session";
 
 // A ledger is live data: this page is rendered per request, never cached at build.
 export const dynamic = "force-dynamic";
 
 export default async function LedgerPage() {
-  const version = await health().catch(() => null);
+  // Who is asking is the request's own session (T-7.AUTH.02): there is no instance identity to
+  // fall back on, and a request without one is a request the API answers 401.
+  const session = await sessionCookie();
+  const version = await health(session).catch(() => null);
   let profile: Awaited<ReturnType<typeof companyProfile>> | null = null;
   let page: JournalPage | null = null;
   let failure: { title: string; detail: string } | null = null;
 
   try {
-    profile = await companyProfile(IDENTITY);
-    page = await listJournalEntries(IDENTITY, { limit: 10 });
+    profile = await companyProfile(session);
+    page = await listJournalEntries(session, { limit: 10 });
   } catch (error) {
-    // A refusal is a state the shell renders, not a crash: 401 asks for a
-    // session, 403 explains itself, anything else says what it was.
-    failure = describeFailure(error);
+    // A refusal is a state the shell renders, not a crash: a session that is gone sends the
+    // browser to the sign-in screen, 403 explains itself, anything else says what it was.
+    failure = sessionFailure(error);
   }
 
   return (

@@ -21,14 +21,14 @@
  *   unpaid.
  *
  * Every call goes through `request()` in ./api, so a 401, a 403 and a domain refusal
- * arrive as the same three types the shell already branches on, and the actor each
- * write records is the instance's own (`instanceIdentity()`), never the browser's.
+ * arrive as the same types the shell already branches on, and the actor each
+ * write records is the one the session names, never the browser's.
  */
 
 // The `.ts` extension is deliberate: the arithmetic below is what tests/pos.test.ts
 // states, and Node resolves that test's TypeScript imports by path alone — an
 // extensionless `./api` would typecheck and then fail to load under `node --test`.
-import { request, type Identity } from "./api.ts";
+import { request, type SessionCookie } from "./api.ts";
 import type { components } from "./contract";
 
 export type PosSale = components["schemas"]["PosSaleOut"];
@@ -329,8 +329,8 @@ export interface NewSale {
   soldOn?: string;
 }
 
-export function openSale(identity: Identity, sale: NewSale): Promise<PosSale> {
-  return request<PosSale>("/api/v1/pos/sales", identity, {
+export function openSale(session: SessionCookie, sale: NewSale): Promise<PosSale> {
+  return request<PosSale>("/api/v1/pos/sales", session, {
     method: "POST",
     body: JSON.stringify({
       number: sale.number,
@@ -354,11 +354,11 @@ export interface ScannedItem {
 }
 
 export function scanItem(
-  identity: Identity,
+  session: SessionCookie,
   number: string,
   item: ScannedItem,
 ): Promise<PosSale> {
-  return request<PosSale>(`/api/v1/pos/sales/${encodeURIComponent(number)}/scan`, identity, {
+  return request<PosSale>(`/api/v1/pos/sales/${encodeURIComponent(number)}/scan`, session, {
     method: "POST",
     body: JSON.stringify({
       barcode: item.barcode,
@@ -378,11 +378,11 @@ export interface NewTender {
 }
 
 export function takeTender(
-  identity: Identity,
+  session: SessionCookie,
   number: string,
   tender: NewTender,
 ): Promise<PosSale> {
-  return request<PosSale>(`/api/v1/pos/sales/${encodeURIComponent(number)}/tender`, identity, {
+  return request<PosSale>(`/api/v1/pos/sales/${encodeURIComponent(number)}/tender`, session, {
     method: "POST",
     body: JSON.stringify({
       tender_type: tender.tenderType,
@@ -393,8 +393,8 @@ export function takeTender(
 }
 
 /** Complete a sale — this is the step that issues stock and posts it. */
-export function completeSale(identity: Identity, number: string): Promise<PosSale> {
-  return request<PosSale>(`/api/v1/pos/sales/${encodeURIComponent(number)}/complete`, identity, {
+export function completeSale(session: SessionCookie, number: string): Promise<PosSale> {
+  return request<PosSale>(`/api/v1/pos/sales/${encodeURIComponent(number)}/complete`, session, {
     method: "POST",
   });
 }
@@ -405,10 +405,10 @@ export function completeSale(identity: Identity, number: string): Promise<PosSal
  * The contract wraps it (`{receipt: {...}}`); every caller wants the inside, so it is
  * unwrapped here, once.
  */
-export async function saleReceipt(identity: Identity, number: string): Promise<Receipt> {
+export async function saleReceipt(session: SessionCookie, number: string): Promise<Receipt> {
   const body = await request<components["schemas"]["PosReceiptOut"]>(
     `/api/v1/pos/sales/${encodeURIComponent(number)}/receipt`,
-    identity,
+    session,
   );
   return body.receipt;
 }
@@ -420,11 +420,11 @@ export async function saleReceipt(identity: Identity, number: string): Promise<R
  * replay that arrives twice answers with the first report instead of selling twice.
  */
 export function syncQueuedSales(
-  identity: Identity,
+  session: SessionCookie,
   body: unknown,
   idempotencyKey: string,
 ): Promise<components["schemas"]["PosSyncOut"]> {
-  return request<components["schemas"]["PosSyncOut"]>("/api/v1/pos/sync", identity, {
+  return request<components["schemas"]["PosSyncOut"]>("/api/v1/pos/sync", session, {
     method: "POST",
     headers: { "Idempotency-Key": idempotencyKey },
     body: JSON.stringify(body),
@@ -432,8 +432,8 @@ export function syncQueuedSales(
 }
 
 /** Void an abandoned basket, or refund a completed sale — either way, with a reason. */
-export function voidSale(identity: Identity, number: string, reason: string): Promise<PosSale> {
-  return request<PosSale>(`/api/v1/pos/sales/${encodeURIComponent(number)}/void`, identity, {
+export function voidSale(session: SessionCookie, number: string, reason: string): Promise<PosSale> {
+  return request<PosSale>(`/api/v1/pos/sales/${encodeURIComponent(number)}/void`, session, {
     method: "POST",
     body: JSON.stringify({ reason }),
   });
@@ -449,10 +449,10 @@ export interface NewDrawerMovement {
 }
 
 export function recordDrawerMovement(
-  identity: Identity,
+  session: SessionCookie,
   movement: NewDrawerMovement,
 ): Promise<DrawerMovement> {
-  return request<DrawerMovement>("/api/v1/pos/drawer-movements", identity, {
+  return request<DrawerMovement>("/api/v1/pos/drawer-movements", session, {
     method: "POST",
     body: JSON.stringify({
       terminal: movement.terminal,
@@ -471,8 +471,8 @@ export interface NewShift {
   on?: string;
 }
 
-export function openShift(identity: Identity, shift: NewShift): Promise<PosShift> {
-  return request<PosShift>("/api/v1/pos/shifts", identity, {
+export function openShift(session: SessionCookie, shift: NewShift): Promise<PosShift> {
+  return request<PosShift>("/api/v1/pos/shifts", session, {
     method: "POST",
     body: JSON.stringify({
       terminal: shift.terminal,
@@ -488,10 +488,10 @@ export function openShift(identity: Identity, shift: NewShift): Promise<PosShift
  * A till with no open shift is a refusal like any other rather than an empty answer, so
  * this rejects — the page renders the message and offers to open one.
  */
-export function currentShift(identity: Identity, terminal: string): Promise<PosShift> {
+export function currentShift(session: SessionCookie, terminal: string): Promise<PosShift> {
   return request<PosShift>(
     `/api/v1/pos/shifts/current?terminal=${encodeURIComponent(terminal)}`,
-    identity,
+    session,
   );
 }
 
@@ -502,13 +502,13 @@ export interface ShiftClose {
 }
 
 export function closeShift(
-  identity: Identity,
+  session: SessionCookie,
   shiftId: string,
   close: ShiftClose,
 ): Promise<PosShift> {
   return request<PosShift>(
     `/api/v1/pos/shifts/${encodeURIComponent(shiftId)}/close`,
-    identity,
+    session,
     {
       method: "POST",
       body: JSON.stringify({ counted_cash: close.countedCash, reason: close.reason }),
@@ -517,19 +517,19 @@ export function closeShift(
 }
 
 /** One shift's Z-report: what the drawer did while it was open. */
-export async function shiftReport(identity: Identity, shiftId: string): Promise<ZReport> {
+export async function shiftReport(session: SessionCookie, shiftId: string): Promise<ZReport> {
   const body = await request<components["schemas"]["PosReportOut"]>(
     `/api/v1/pos/z-reports/shift/${encodeURIComponent(shiftId)}`,
-    identity,
+    session,
   );
   return body.report;
 }
 
 /** One day's Z-report, company-wide. */
-export async function dayReport(identity: Identity, on: string): Promise<ZReport> {
+export async function dayReport(session: SessionCookie, on: string): Promise<ZReport> {
   const body = await request<components["schemas"]["PosReportOut"]>(
     `/api/v1/pos/z-reports/day?on=${encodeURIComponent(on)}`,
-    identity,
+    session,
   );
   return body.report;
 }
@@ -539,8 +539,8 @@ export async function dayReport(identity: Identity, on: string): Promise<ZReport
  *
  * `null` withdraws the statement, which is a third answer rather than a default.
  */
-export function setCashDrawerPolicy(identity: Identity, required: boolean | null): Promise<Company> {
-  return request<Company>("/api/v1/pos/cash-drawer-policy", identity, {
+export function setCashDrawerPolicy(session: SessionCookie, required: boolean | null): Promise<Company> {
+  return request<Company>("/api/v1/pos/cash-drawer-policy", session, {
     method: "POST",
     body: JSON.stringify({ required }),
   });

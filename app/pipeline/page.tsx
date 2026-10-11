@@ -7,10 +7,12 @@
  * field is printed from the **same** state the summary counts (`lib/pipeline`), so
  * the two cannot disagree about whether a value was hidden, missing or unreadable.
  *
- * Identity comes from `instanceIdentity()`, the one place runtime identity is read.
+ * Identity is the request's own session cookie (`./session`), never an actor this instance
+ * asserts about itself.
  */
 
-import { describeFailure, instanceIdentity, readPipelineBoard } from "@/lib/api";
+import { readPipelineBoard } from "@/lib/api";
+import { sessionCookie, sessionFailure } from "@/lib/session";
 import {
   boardSummary,
   moneyLabel,
@@ -32,10 +34,11 @@ export default async function PipelinePage() {
   let failure: { title: string; detail: string } | null = null;
 
   try {
-    board = await readPipelineBoard(instanceIdentity());
+    board = await readPipelineBoard(await sessionCookie());
   } catch (error) {
-    // 401 asks for a session, 403 explains itself, anything else says what it was.
-    failure = describeFailure(error);
+    // A session that is gone sends the browser to the sign-in screen with the reason; a 403
+    // explains itself, and anything else says what it was.
+    failure = sessionFailure(error);
   }
 
   const summary = board ? boardSummary(board) : null;

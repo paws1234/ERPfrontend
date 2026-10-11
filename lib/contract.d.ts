@@ -104,6 +104,373 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign Role Route
+         * @description Give a member one of this company's roles. Takes effect on their next request.
+         *
+         *     Two refusals worth stating: the subject must be a **member** of this company, and a
+         *     role the `mfa_required_roles` variable names cannot be assigned to somebody without a
+         *     confirmed second factor — which is how "MFA is enforced for the administrator role"
+         *     is true without a sign-in that could lock an install out of itself.
+         */
+        post: operations["assign_role_route_api_v1_admin_assignments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Roles
+         * @description This company's roles and what each holds.
+         */
+        get: operations["list_roles_api_v1_admin_roles_get"];
+        put?: never;
+        /**
+         * Create Role
+         * @description Define a role. It holds nothing until something is granted to it.
+         */
+        post: operations["create_role_api_v1_admin_roles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/roles/{code}/grants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Grant Capabilities
+         * @description Give a role capabilities. This is the only way anything is ever allowed.
+         */
+        post: operations["grant_capabilities_api_v1_admin_roles__code__grants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/roles/{code}/restrictions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restrict Field
+         * @description Restrict one field of one entity for a role — the field-level half of RBAC.
+         */
+        post: operations["restrict_field_api_v1_admin_roles__code__restrictions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Users
+         * @description The people who may work in this company. Only this company's — never others'.
+         */
+        get: operations["list_users_api_v1_admin_users_get"];
+        put?: never;
+        /**
+         * Create User Route
+         * @description Add a person to this company, with a password they can sign in with.
+         *
+         *     Creating the *identity* is installation-level, but creating it through this route
+         *     always makes a member of the acting company: there is no way to make a user who
+         *     belongs nowhere, which would be an account nothing could reach or administer.
+         */
+        post: operations["create_user_route_api_v1_admin_users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{login}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set User Password
+         * @description Set somebody's password. Their live sessions are revoked by it.
+         */
+        post: operations["set_user_password_api_v1_admin_users__login__password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{login}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set User Status
+         * @description Disable or re-enable somebody. Disabling revokes every session they hold.
+         */
+        post: operations["set_user_status_api_v1_admin_users__login__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/company": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Switch Company
+         * @description Move this session to another company the person belongs to.
+         *
+         *     The membership is what permits it, never a header or a payload field: a caller
+         *     cannot reach a company they are not a member of, which is the hole the old
+         *     ``X-Company-Id`` header left open (finding 2 of the 2026-10-10 audit).
+         */
+        post: operations["switch_company_api_v1_auth_company_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign In
+         * @description Sign in and receive the session cookie.
+         *
+         *     Public by necessity — there is no session to check yet — and the one route that
+         *     mints one. Every refusal is the same answer with the same wording, so a caller
+         *     cannot enumerate logins, and the credential's failure count is written even
+         *     though the request is refused (app/identity.py).
+         */
+        post: operations["sign_in_api_v1_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign Out
+         * @description Sign out: the row is revoked, so the token is dead even if the cookie is copied.
+         */
+        post: operations["sign_out_api_v1_auth_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mfa/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Second Factor
+         * @description Confirm enrolment with a live code, and receive the recovery codes once.
+         */
+        post: operations["confirm_second_factor_api_v1_auth_mfa_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mfa/enrol": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Enrol Second Factor
+         * @description Issue a second factor. It is not demanded until a code confirms it.
+         *
+         *     Reachable with a session that already owes a factor, so a person can replace a lost
+         *     authenticator without an administrator — and reachable before one is owed, because
+         *     holding an `mfa_required_roles` role requires having enrolled one (the assignment
+         *     route refuses otherwise).
+         */
+        post: operations["enrol_second_factor_api_v1_auth_mfa_enrol_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mfa/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify Second Factor
+         * @description Finish a sign-in that owed a second factor.
+         */
+        post: operations["verify_second_factor_api_v1_auth_mfa_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change Password
+         * @description Change your own password. The current one is required, and the rest are revoked.
+         *
+         *     Revoking the other sessions is the point of a password change: if the password was
+         *     changed *because* somebody else had it, leaving their sessions live would leave the
+         *     problem in place. This session survives, so the person is not signed out of the
+         *     screen they just used.
+         */
+        post: operations["change_password_api_v1_auth_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Session
+         * @description Who this cookie is, for a shell that has one and wants to know what it may do.
+         */
+        get: operations["read_session_api_v1_auth_session_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/companies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Company Route
+         * @description Provision a tenant: the company, its chart of accounts, and its first administrator.
+         *
+         *     The creator is made a member of the company they created and given its administrator
+         *     role, because a tenant nobody can administer is not provisioned — it is stranded.
+         *     Both writes are company-scoped, so the trail files them under the new company.
+         *
+         *     # ponytail: no platform-level administrator. Every administration route is
+         *     # scoped to the actor's own company, so this is how a tenant is created: by
+         *     # somebody who already holds `company.configure` somewhere. Ceiling: an
+         *     # operator with no company cannot create the first one — the install command is
+         *     # still the only way in, which is the bootstrap module's job. Upgrade path: a
+         *     # platform principal, when something asks for one.
+         */
+        post: operations["create_company_route_api_v1_companies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/companies/current": {
         parameters: {
             query?: never;
@@ -145,6 +512,32 @@ export interface paths {
          *     they were taken under, because each one stored it.
          */
         post: operations["set_company_credit_check_mode_api_v1_companies_current_credit_check_mode_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/companies/{code}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set Company Status Route
+         * @description Suspend or reinstate a company. Nothing it owns is touched.
+         *
+         *     A suspended company keeps every row — the ledger stays whole — and refuses
+         *     sign-ins and every request except this one, which is why this route is reachable
+         *     for a suspended company and nothing else is (app/auth.py `allow_suspended`). It
+         *     still asks for `company.configure`, so lifting the suspension is as hard as
+         *     suspending.
+         */
+        post: operations["set_company_status_route_api_v1_companies__code__status_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -281,7 +674,12 @@ export interface paths {
         };
         /**
          * Health
-         * @description Liveness, and the contract version this instance publishes.
+         * @description Liveness: the process is up and serving — nothing about its dependencies.
+         *
+         *     A liveness probe must not fail for a reason a restart cannot fix, so this touches no
+         *     database and answers as long as the process runs. Readiness is the other half of
+         *     T-8.OBS.01's split (`/api/v1/ready`), and it is the one a load balancer should ask
+         *     before sending traffic.
          */
         get: operations["health_api_v1_health_get"];
         put?: never;
@@ -313,6 +711,32 @@ export interface paths {
          * @description Post one balanced journal entry — retry-safe by its idempotency key.
          */
         post: operations["post_entry_api_v1_journal_entries_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Metrics
+         * @description The counters this process reports, in Prometheus' text exposition format.
+         *
+         *     `metrics_enabled=false` answers `404` rather than serving an empty document: a scrape
+         *     that is switched off should look switched off, and a `404` is what an operator's scrape
+         *     config will report as a failure to collect. The registry is this process's own
+         *     (`app/observability.py` states the ceiling): no cross-process aggregation, so a scrape
+         *     reads the web container's numbers and the worker's separately.
+         */
+        get: operations["metrics_api_v1_metrics_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1031,6 +1455,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ready
+         * @description Readiness: the database answers and the schema is at the revision this build expects.
+         *
+         *     Answers `503` (not `500`) when it is not ready, because "not ready yet" is a state a
+         *     deployment moves out of, and a load balancer needs the distinction. The body names what
+         *     is not ready and never why — the exception is in the log, and this route is public
+         *     (T-8.OBS.01, `SECURITY-REVIEW.md`'s access matrix).
+         */
+        get: operations["ready_api_v1_ready_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports": {
         parameters: {
             query?: never;
@@ -1335,6 +1784,13 @@ export interface components {
             /** Parent Id */
             parent_id?: string | null;
         };
+        /** AssignmentIn */
+        AssignmentIn: {
+            /** Role */
+            role: string;
+            /** Subject */
+            subject: string;
+        };
         /**
          * CashDrawerPolicyIn
          * @description Whether this company's tills must trade inside an open shift (null = not stated).
@@ -1384,6 +1840,22 @@ export interface components {
             /** Market */
             market: string;
         };
+        /**
+         * CompanyIn
+         * @description A tenant, as it is created. The market decides what it starts with.
+         */
+        CompanyIn: {
+            /** Base Currency */
+            base_currency?: string | null;
+            /** Code */
+            code: string;
+            /** Fiscal Year Start Month */
+            fiscal_year_start_month?: number | null;
+            /** Market */
+            market: string;
+            /** Name */
+            name: string;
+        };
         /** CompanyOut */
         CompanyOut: {
             /** Base Currency */
@@ -1400,6 +1872,18 @@ export interface components {
             id: string;
             /** Name */
             name: string;
+            /** Status */
+            status: string;
+        };
+        /** CompanyStatusIn */
+        CompanyStatusIn: {
+            /** Status */
+            status: string;
+        };
+        /** CompanySwitchIn */
+        CompanySwitchIn: {
+            /** Company */
+            company: string;
         };
         /**
          * ConfirmOrderIn
@@ -1699,6 +2183,11 @@ export interface components {
             /** Source */
             source: string;
         };
+        /** GrantIn */
+        GrantIn: {
+            /** Capabilities */
+            capabilities: string[];
+        };
         /** HealthOut */
         HealthOut: {
             /** Status */
@@ -1775,6 +2264,23 @@ export interface components {
             line_no: number;
             /** Party */
             party?: string | null;
+        };
+        /** MfaCodeIn */
+        MfaCodeIn: {
+            /** Code */
+            code: string;
+        };
+        /**
+         * MfaEnrolmentOut
+         * @description The secret, its otpauth URL, and the recovery codes — shown once, never again.
+         */
+        MfaEnrolmentOut: {
+            /** Otpauth Url */
+            otpauth_url: string;
+            /** Recovery Codes */
+            recovery_codes?: string[] | null;
+            /** Secret */
+            secret: string;
         };
         /**
          * OpportunityIn
@@ -1946,6 +2452,20 @@ export interface components {
             offset: number;
             /** Total */
             total: number;
+        };
+        /** PasswordChangeIn */
+        PasswordChangeIn: {
+            /** Current Password */
+            current_password: string;
+            /** New Password */
+            new_password: string;
+        };
+        /** PasswordSetIn */
+        PasswordSetIn: {
+            /** Must Change */
+            must_change?: boolean | null;
+            /** Password */
+            password: string;
         };
         /** PickListIn */
         PickListIn: {
@@ -2662,6 +3182,32 @@ export interface components {
              */
             valid_until: string;
         };
+        /**
+         * ReadinessCheckOut
+         * @description One dependency, its state, and a reason safe to publish (T-8.OBS.01).
+         */
+        ReadinessCheckOut: {
+            /** Detail */
+            detail: string;
+            /** Name */
+            name: string;
+            /** Ok */
+            ok: boolean;
+            /** Revision */
+            revision?: string | null;
+        };
+        /**
+         * ReadinessOut
+         * @description What `/api/v1/ready` answers: whether this instance can serve, and each check.
+         */
+        ReadinessOut: {
+            /** Checks */
+            checks: components["schemas"]["ReadinessCheckOut"][];
+            /** Status */
+            status: string;
+            /** Version */
+            version: string;
+        };
         /** ReportIn */
         ReportIn: {
             /** Capability */
@@ -2710,6 +3256,22 @@ export interface components {
             status: string;
             /** Withheld Recipients */
             withheld_recipients?: components["schemas"]["WithheldRecipientOut"][] | null;
+        };
+        /**
+         * RestrictionIn
+         * @description One field of one entity, for one role. Both flags are optional and nullable:
+         *     null means "not stated", and the two are independent — a field may be writable and
+         *     unreadable, which is what a write-only column (a password, a bank account) is.
+         */
+        RestrictionIn: {
+            /** Can Read */
+            can_read?: boolean | null;
+            /** Can Write */
+            can_write?: boolean | null;
+            /** Entity */
+            entity: string;
+            /** Field */
+            field: string;
         };
         /**
          * RfqBasisOut
@@ -2844,6 +3406,59 @@ export interface components {
             /** Valid Until */
             valid_until?: string | null;
         };
+        /** RoleIn */
+        RoleIn: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+        };
+        /** RoleOut */
+        RoleOut: {
+            /** Capabilities */
+            capabilities: string[];
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+        };
+        /** RolePageOut */
+        RolePageOut: {
+            /** Items */
+            items: components["schemas"]["RoleOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /**
+         * SessionOut
+         * @description Who the caller is and what the shell may show them.
+         *
+         *     Deliberately carries no company *id* the caller could reuse: the session is the
+         *     only thing that names the company (T-7.AUTH.02), so a shell that wants to say
+         *     "Acme Trading" reads the code, and one that wants another company switches.
+         */
+        SessionOut: {
+            /** Capabilities */
+            capabilities: string[];
+            /** Companies */
+            companies: string[];
+            /** Company */
+            company: string;
+            /** Display Name */
+            display_name?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Login */
+            login: string;
+            /** Mfa Pending */
+            mfa_pending: boolean;
+            /** Must Change Password */
+            must_change_password: boolean;
+        };
         /**
          * ShipmentIn
          * @description What a shipment needs: where from, and how much of which lines.
@@ -2898,6 +3513,64 @@ export interface components {
             warehouse: string;
         };
         /**
+         * SignInIn
+         * @description What a person types. `company` is only needed when they work in several.
+         */
+        SignInIn: {
+            /** Company */
+            company?: string | null;
+            /** Login */
+            login: string;
+            /** Password */
+            password: string;
+        };
+        /** UserIn */
+        UserIn: {
+            /** Display Name */
+            display_name?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Login */
+            login: string;
+            /** Password */
+            password?: string | null;
+        };
+        /** UserOut */
+        UserOut: {
+            /** Companies */
+            companies: string[];
+            /** Display Name */
+            display_name: string | null;
+            /** Email */
+            email: string | null;
+            /** Has Password */
+            has_password: boolean;
+            /** Login */
+            login: string;
+            /** Mfa Enrolled */
+            mfa_enrolled: boolean;
+            /** Roles */
+            roles: string[];
+            /** Status */
+            status: string;
+        };
+        /** UserPageOut */
+        UserPageOut: {
+            /** Items */
+            items: components["schemas"]["UserOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** UserStatusIn */
+        UserStatusIn: {
+            /** Status */
+            status: string;
+        };
+        /**
          * WithheldRecipientOut
          * @description A recipient the run did not deliver to, and why — a subject without the capability.
          */
@@ -2919,10 +3592,7 @@ export interface operations {
     list_account_mappings_api_v1_account_mappings_get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3005,10 +3675,7 @@ export interface operations {
     put_account_mapping_api_v1_account_mappings__key__put: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 key: string;
             };
@@ -3097,10 +3764,7 @@ export interface operations {
     new_account_api_v1_accounts_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3187,10 +3851,7 @@ export interface operations {
     import_coa_api_v1_accounts_import_coa_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3277,10 +3938,7 @@ export interface operations {
     accounts_tree_api_v1_accounts_tree_get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3360,13 +4018,1566 @@ export interface operations {
             };
         };
     };
+    assign_role_route_api_v1_admin_assignments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    list_roles_api_v1_admin_roles_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolePageOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    create_role_api_v1_admin_roles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    grant_capabilities_api_v1_admin_roles__code__grants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    restrict_field_api_v1_admin_roles__code__restrictions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestrictionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    list_users_api_v1_admin_users_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserPageOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    create_user_route_api_v1_admin_users_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    set_user_password_api_v1_admin_users__login__password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                login: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordSetIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    set_user_status_api_v1_admin_users__login__status_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                login: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserStatusIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    switch_company_api_v1_auth_company_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanySwitchIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    sign_in_api_v1_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignInIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    sign_out_api_v1_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    confirm_second_factor_api_v1_auth_mfa_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MfaCodeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MfaEnrolmentOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    enrol_second_factor_api_v1_auth_mfa_enrol_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MfaEnrolmentOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    verify_second_factor_api_v1_auth_mfa_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MfaCodeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    change_password_api_v1_auth_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    read_session_api_v1_auth_session_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    create_company_route_api_v1_companies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
     current_company_api_v1_companies_current_get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3449,10 +5660,7 @@ export interface operations {
     set_company_credit_check_mode_api_v1_companies_current_credit_check_mode_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3536,13 +5744,99 @@ export interface operations {
             };
         };
     };
+    set_company_status_route_api_v1_companies__code__status_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyStatusIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
     create_coupon_api_v1_coupons_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3629,10 +5923,7 @@ export interface operations {
     redeem_api_v1_coupons__code__redeem_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 code: string;
             };
@@ -3721,10 +6012,7 @@ export interface operations {
     list_currencies_api_v1_currencies_get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3807,10 +6095,7 @@ export interface operations {
     new_currency_api_v1_currencies_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3901,10 +6186,7 @@ export interface operations {
                 start?: string | null;
                 drill_down?: string | null;
             };
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -3990,10 +6272,7 @@ export interface operations {
                 currency: string;
                 on: string;
             };
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -4076,10 +6355,7 @@ export interface operations {
     put_fx_rate_api_v1_fx_rates_put: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -4254,10 +6530,7 @@ export interface operations {
                 source_type?: string | null;
                 source_id?: string | null;
             };
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -4342,8 +6615,6 @@ export interface operations {
             query?: never;
             header: {
                 "Idempotency-Key": string;
-                "x-company-id": string;
-                "x-actor"?: string;
             };
             path?: never;
             cookie?: never;
@@ -4428,13 +6699,93 @@ export interface operations {
             };
         };
     };
+    metrics_api_v1_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Prometheus text format */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
     new_opportunity_api_v1_opportunities_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -4521,10 +6872,7 @@ export interface operations {
     lose_opportunity_card_api_v1_opportunities__opportunity_id__loss_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 opportunity_id: string;
             };
@@ -4613,10 +6961,7 @@ export interface operations {
     move_opportunity_card_api_v1_opportunities__opportunity_id__moves_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 opportunity_id: string;
             };
@@ -4705,10 +7050,7 @@ export interface operations {
     convert_opportunity_card_api_v1_opportunities__opportunity_id__quotation_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 opportunity_id: string;
             };
@@ -4799,10 +7141,7 @@ export interface operations {
             query: {
                 on: string;
             };
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -4885,10 +7224,7 @@ export interface operations {
     pipeline_board_view_api_v1_pipeline_board_get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -4971,10 +7307,7 @@ export interface operations {
     new_pipeline_stage_api_v1_pipeline_stages_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5061,10 +7394,7 @@ export interface operations {
     portal_view_api_v1_portal_documents_get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5147,10 +7477,7 @@ export interface operations {
     portal_invoice_api_v1_portal_invoices_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5237,10 +7564,7 @@ export interface operations {
     portal_acknowledge_order_api_v1_portal_orders__number__acknowledge_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -5325,10 +7649,7 @@ export interface operations {
     portal_rfq_response_api_v1_portal_rfqs__number__responses_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -5417,10 +7738,7 @@ export interface operations {
     set_pos_cash_drawer_policy_api_v1_pos_cash_drawer_policy_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5507,10 +7825,7 @@ export interface operations {
     record_drawer_movement_api_v1_pos_drawer_movements_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5600,10 +7915,7 @@ export interface operations {
                 on: string;
                 terminal?: string | null;
             };
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5686,10 +7998,7 @@ export interface operations {
     open_pos_sale_api_v1_pos_sales_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -5776,10 +8085,7 @@ export interface operations {
     complete_pos_sale_api_v1_pos_sales__number__complete_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -5864,10 +8170,7 @@ export interface operations {
     pos_receipt_api_v1_pos_sales__number__receipt_get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -5952,10 +8255,7 @@ export interface operations {
     scan_pos_sale_api_v1_pos_sales__number__scan_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -6044,10 +8344,7 @@ export interface operations {
     tender_pos_sale_api_v1_pos_sales__number__tender_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -6136,10 +8433,7 @@ export interface operations {
     void_pos_sale_api_v1_pos_sales__number__void_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -6228,10 +8522,7 @@ export interface operations {
     open_pos_shift_api_v1_pos_shifts_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6320,10 +8611,7 @@ export interface operations {
             query: {
                 terminal: string;
             };
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6406,10 +8694,7 @@ export interface operations {
     close_pos_shift_api_v1_pos_shifts__shift_id__close_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 shift_id: string;
             };
@@ -6500,8 +8785,6 @@ export interface operations {
             query?: never;
             header: {
                 "Idempotency-Key": string;
-                "x-company-id": string;
-                "x-actor"?: string;
             };
             path?: never;
             cookie?: never;
@@ -6591,10 +8874,7 @@ export interface operations {
             query?: {
                 terminal?: string | null;
             };
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6679,10 +8959,7 @@ export interface operations {
             query: {
                 on: string;
             };
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6765,10 +9042,7 @@ export interface operations {
     pos_shift_report_api_v1_pos_z_reports_shift__shift_id__get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 shift_id: string;
             };
@@ -6853,10 +9127,7 @@ export interface operations {
     create_price_rule_api_v1_price_rules_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -6943,10 +9214,7 @@ export interface operations {
     resolve_price_rule_api_v1_price_rules_resolve_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7033,10 +9301,7 @@ export interface operations {
     new_quotation_api_v1_quotations_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7123,10 +9388,7 @@ export interface operations {
     read_quotation_api_v1_quotations__number__get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -7211,10 +9473,7 @@ export interface operations {
     order_from_quotation_api_v1_quotations__number__order_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -7303,10 +9562,7 @@ export interface operations {
     reprice_api_v1_quotations__number__reprice_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -7392,13 +9648,102 @@ export interface operations {
             };
         };
     };
+    ready_api_v1_ready_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description the instance can serve */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description the instance cannot serve yet */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessOut"];
+                };
+            };
+        };
+    };
     register_report_definition_api_v1_reports_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7485,10 +9830,7 @@ export interface operations {
     read_report_catalogue_api_v1_reports_catalogue_get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7573,10 +9915,7 @@ export interface operations {
             query?: {
                 period?: string | null;
             };
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 code: string;
             };
@@ -7661,10 +10000,7 @@ export interface operations {
     new_rfq_api_v1_rfqs_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -7751,10 +10087,7 @@ export interface operations {
     read_rfq_api_v1_rfqs__number__get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -7839,10 +10172,7 @@ export interface operations {
     record_rfq_answer_api_v1_rfqs__number__responses_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -7931,10 +10261,7 @@ export interface operations {
     sales_order_api_v1_sales_orders__number__get: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -8019,10 +10346,7 @@ export interface operations {
     confirm_sales_order_api_v1_sales_orders__number__confirm_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -8111,10 +10435,7 @@ export interface operations {
     create_order_pick_list_api_v1_sales_orders__number__pick_list_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };
@@ -8203,10 +10524,7 @@ export interface operations {
     record_order_pick_api_v1_sales_orders__number__pick_list_lines__line_no__post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
                 line_no: number;
@@ -8296,10 +10614,7 @@ export interface operations {
     ship_sales_order_api_v1_sales_orders__number__shipments_post: {
         parameters: {
             query?: never;
-            header: {
-                "x-company-id": string;
-                "x-actor"?: string;
-            };
+            header?: never;
             path: {
                 number: string;
             };

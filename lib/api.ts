@@ -8,13 +8,23 @@
  * coupling, so a field the backend stops sending fails this build instead of
  * failing in front of a customer.
  *
- * The two refusals the shell must survive are distinct types:
- *  - `Unauthenticated` (401) — the shell shows the session flow;
- *  - `NotPermitted` (403) — the shell says so and keeps working.
+ * Identity is the **session cookie** and nothing else. The backend mints `erpv1_session`
+ * at `POST /api/v1/auth/login` and resolves the caller, the company they are acting in and
+ * their capabilities from the session row behind it, so this file states no actor of its
+ * own: `./session` reads the incoming request's cookie with `next/headers` and hands it
+ * here, and it travels as the `Cookie` header. The per-request `X-Company-Id`/`X-Actor`
+ * headers this client used to assert from `COMPANY_ID`/`ACTOR` are gone — an identity a
+ * caller states about itself is an identity anyone can claim (T-7.AUTH.02 replaced
+ * T-0.API.01, and only this file changed when it did).
  *
- * Identity is stated per request (`X-Company-Id`, `X-Actor`) because the backend
- * boundary reads it from headers today (T-0.API.01); T-0.SEC.01 replaces that
- * with authenticated claims, and only this file changes when it does.
+ * The refusals the shell must survive are distinct types:
+ *  - `Unauthenticated` (401) — there is no session, or it expired or was revoked: the
+ *    sign-in screen, with the reason;
+ *  - `MfaRequired` (401, code `mfa_required`) — there *is* a session and it still owes a
+ *    second factor, which every route but `auth/mfa/verify` refuses until it is answered:
+ *    the second-factor prompt;
+ *  - `NotPermitted` (403) — a capability the caller lacks: the shell says so and keeps
+ *    working.
  */
 
 import type { components, paths } from "./contract";
@@ -40,6 +50,10 @@ export type OrgChart = components["schemas"]["OrgChartOut"];
 export type Dashboard = components["schemas"]["DashboardOut"];
 export type DashboardTile = components["schemas"]["DashboardTileOut"];
 export type DashboardWithheld = components["schemas"]["DashboardWithheldOut"];
+/** T-7.AUTH.02: who the caller is, the company they are acting in, and what they may see. */
+export type Session = components["schemas"]["SessionOut"];
+/** The one error shape every refusal states. */
+export type ApiRefusal = components["schemas"]["ErrorOut"]["error"];
 
 /** The paths this client speaks, read straight out of the contract. */
 export type LedgerListPath = paths["/api/v1/journal-entries"]["get"];
@@ -48,16 +62,29 @@ export type CompanyPath = paths["/api/v1/companies/current"]["get"];
 /** The backend's base URL, injected at container start — never baked in. */
 export const apiBaseUrl = process.env.API_BASE_URL ?? "http://localhost:8000";
 
-/** Which company and actor this instance speaks for. */
-export interface Identity {
-  companyId: string;
-  actor: string;
-}
+/**
+ * Who is calling: the `Cookie` header built from the incoming request's session cookie, or
+ * `""` for a request that carries none — which the backend answers with 401 like any other
+ * cookie it does not recognise. `./session` is the only module that reads it.
+ */
+export type SessionCookie = string;
 
 export class Unauthenticated extends Error {
   constructor(message = "sign in to continue") {
     super(message);
     this.name = "Unauthenticated";
+  }
+}
+
+/**
+ * The session exists and still owes a second factor. Distinct from `Unauthenticated`
+ * because the answer is not a sign-in form but a code: the cookie is good, the session is
+ * simply not complete yet.
+ */
+export class MfaRequired extends Error {
+  constructor(message = "this session still owes a second factor") {
+    super(message);
+    this.name = "MfaRequired";
   }
 }
 
@@ -83,66 +110,79 @@ export class ApiFailure extends Error {
   }
 }
 
+/** The error body a refusal states, when it states one at all. */
+async function errorBody(response: Response): Promise<ApiErrorBody | null> {
+  try {
+    return (await response.json()) as ApiErrorBody;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Turn a refusal into the type the shell branches on. The two 401s are told apart by the
+ * code the backend states, so "sign in again" and "answer the second factor" are never
+ * mistaken for one another, and the message shown is the backend's own wording.
+ */
+export async function refusal(response: Response): Promise<Error> {
+  const detail = (await errorBody(response))?.error;
+  if (response.status === 401 && detail?.code === "mfa_required") {
+    return new MfaRequired(detail.message);
+  }
+  if (response.status === 401) {
+    return new Unauthenticated(detail?.message);
+  }
+  if (response.status === 403) {
+    return new NotPermitted(detail?.message ?? "not permitted", detail?.code ?? "forbidden");
+  }
+  return new ApiFailure(
+    response.status,
+    detail?.code ?? "unknown",
+    detail?.message ?? response.statusText,
+  );
+}
+
 /** One request, with the statuses the shell branches on separated out. */
 export async function request<T>(
   path: string,
-  identity: Identity,
+  session: SessionCookie,
   init: RequestInit = {},
 ): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      "X-Company-Id": identity.companyId,
-      "X-Actor": identity.actor,
+      ...(session === "" ? {} : { Cookie: session }),
       ...(init.headers ?? {}),
     },
     cache: "no-store",
   });
 
-  if (response.status === 401) {
-    throw new Unauthenticated();
-  }
-  if (response.status === 403) {
-    const body = (await response.json()) as ApiErrorBody;
-    throw new NotPermitted(body.error.message, body.error.code);
-  }
   if (!response.ok) {
-    const body = (await response.json()) as ApiErrorBody;
-    throw new ApiFailure(response.status, body.error.code, body.error.message);
+    throw await refusal(response);
   }
   return (await response.json()) as T;
 }
 
-export function health(): Promise<Health> {
-  return request<Health>("/api/v1/health", { companyId: "", actor: "" });
+/** The platform's own health. Public, and read with whatever session there is. */
+export function health(session: SessionCookie = ""): Promise<Health> {
+  return request<Health>("/api/v1/health", session);
 }
 
-/**
- * The instance's own identity, read from the environment at start — no rebuild.
- * One place, so every screen speaks as the same company and actor.
- */
-export function instanceIdentity(): Identity {
-  return {
-    companyId: process.env.COMPANY_ID ?? "00000000-0000-0000-0000-000000000000",
-    actor: process.env.ACTOR ?? "shell",
-  };
-}
-
-export function companyProfile(identity: Identity): Promise<CompanyProfile> {
+export function companyProfile(session: SessionCookie): Promise<CompanyProfile> {
   return request<CompanyPath["responses"][200]["content"]["application/json"]>(
     "/api/v1/companies/current",
-    identity,
+    session,
   );
 }
 
 export function listJournalEntries(
-  identity: Identity,
+  session: SessionCookie,
   { limit = 25, offset = 0 }: { limit?: number; offset?: number } = {},
 ): Promise<JournalPage> {
   return request<JournalPage>(
     `/api/v1/journal-entries?limit=${limit}&offset=${offset}`,
-    identity,
+    session,
   );
 }
 
@@ -153,8 +193,8 @@ export function listJournalEntries(
  * Read-only, and the only place the matrix gets its data: the comparison itself
  * (./comparison) computes over this payload and never over a database.
  */
-export function readRfq(identity: Identity, number: string): Promise<Rfq> {
-  return request<Rfq>(`/api/v1/rfqs/${encodeURIComponent(number)}`, identity);
+export function readRfq(session: SessionCookie, number: string): Promise<Rfq> {
+  return request<Rfq>(`/api/v1/rfqs/${encodeURIComponent(number)}`, session);
 }
 
 /**
@@ -165,8 +205,8 @@ export function readRfq(identity: Identity, number: string): Promise<Rfq> {
  * actor may not read is **absent** from a card rather than null — `lib/pipeline`
  * is what turns that distinction into the numbers the board shows.
  */
-export function readPipelineBoard(identity: Identity): Promise<PipelineColumn[]> {
-  return request<PipelineColumn[]>("/api/v1/pipeline/board", identity);
+export function readPipelineBoard(session: SessionCookie): Promise<PipelineColumn[]> {
+  return request<PipelineColumn[]>("/api/v1/pipeline/board", session);
 }
 
 /**
@@ -178,17 +218,17 @@ export function readPipelineBoard(identity: Identity): Promise<PipelineColumn[]>
  * line's depth, because the structure is the backend's to decide; `lib/org` turns that
  * into indents, labels and totals.
  */
-export function readOrgChart(identity: Identity, on: string): Promise<OrgChart> {
-  return request<OrgChart>(`/api/v1/org-chart?on=${encodeURIComponent(on)}`, identity);
+export function readOrgChart(session: SessionCookie, on: string): Promise<OrgChart> {
+  return request<OrgChart>(`/api/v1/org-chart?on=${encodeURIComponent(on)}`, session);
 }
 
 /**
  * The four writes that make the board drivable rather than a picture.
  *
  * Every one of them goes through `request()` like the reads, so a 401, a 403 and a
- * domain refusal arrive as the same three types the shell already branches on. The
- * actor is the **instance's** identity, never something the caller types: the actor a
- * move records has to be the request's own, and the instant is the server's.
+ * domain refusal arrive as the same types the shell already branches on. The actor is
+ * never something the caller types: the session names it, the backend records it on the
+ * move, and the instant is the server's.
  *
  * `undefined` fields are dropped by `JSON.stringify`, so a caller that states no
  * value does not send one — which matters, because the backend treats a field the
@@ -207,10 +247,10 @@ export interface NewOpportunity {
 }
 
 export function createOpportunity(
-  identity: Identity,
+  session: SessionCookie,
   deal: NewOpportunity,
 ): Promise<Opportunity> {
-  return request<Opportunity>("/api/v1/opportunities", identity, {
+  return request<Opportunity>("/api/v1/opportunities", session, {
     method: "POST",
     body: JSON.stringify({
       customer_code: deal.customerCode,
@@ -225,41 +265,41 @@ export function createOpportunity(
 
 /** Move a card to a column. Moving into a loss column needs a reason. */
 export function moveOpportunity(
-  identity: Identity,
+  session: SessionCookie,
   opportunityId: string,
   toStage: string,
   reason?: string,
 ): Promise<Opportunity> {
   return request<Opportunity>(
     `/api/v1/opportunities/${encodeURIComponent(opportunityId)}/moves`,
-    identity,
+    session,
     { method: "POST", body: JSON.stringify({ to_stage: toStage, reason }) },
   );
 }
 
 /** Mark a deal lost, with the reason the domain requires. */
 export function loseOpportunity(
-  identity: Identity,
+  session: SessionCookie,
   opportunityId: string,
   reason: string,
 ): Promise<Opportunity> {
   return request<Opportunity>(
     `/api/v1/opportunities/${encodeURIComponent(opportunityId)}/loss`,
-    identity,
+    session,
     { method: "POST", body: JSON.stringify({ reason }) },
   );
 }
 
 /** Turn a won deal into a quotation. One win, one quotation. */
 export function convertOpportunity(
-  identity: Identity,
+  session: SessionCookie,
   opportunityId: string,
   number: string,
   issuedOn?: string,
 ): Promise<Quotation> {
   return request<Quotation>(
     `/api/v1/opportunities/${encodeURIComponent(opportunityId)}/quotation`,
-    identity,
+    session,
     { method: "POST", body: JSON.stringify({ number, issued_on: issuedOn }) },
   );
 }
@@ -274,7 +314,7 @@ export function convertOpportunity(
  * named in `withheld` instead, and the page shows that rather than a zero.
  */
 export function readDashboard(
-  identity: Identity,
+  session: SessionCookie,
   {
     asOf,
     start,
@@ -286,17 +326,20 @@ export function readDashboard(
   if (start) query.set("start", start);
   if (drillDown) query.set("drill_down", drillDown);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return request<Dashboard>(`/api/v1/dashboard${suffix}`, identity);
+  return request<Dashboard>(`/api/v1/dashboard${suffix}`, session);
 }
 
 /**
- * What a page does with a failure: the sign-in prompt for 401, a notice for 403,
- * and a plain message for anything else. The shell never throws its way to a
- * blank page.
+ * What a page does with a failure: the sign-in prompt for 401, the second-factor prompt
+ * for a session that still owes one, a notice for 403, and a plain message for anything
+ * else. The shell never throws its way to a blank page.
  */
 export function describeFailure(error: unknown): { title: string; detail: string } {
   if (error instanceof Unauthenticated) {
     return { title: "Sign in required", detail: error.message };
+  }
+  if (error instanceof MfaRequired) {
+    return { title: "Second factor required", detail: error.message };
   }
   if (error instanceof NotPermitted) {
     return { title: "Not permitted", detail: error.message };

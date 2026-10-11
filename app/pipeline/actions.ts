@@ -5,13 +5,13 @@
  *
  * A read-only board is a picture; these four actions are how a person configures
  * nothing and moves, loses and converts a card. They are **server actions**, which is
- * the whole point: the browser never holds the identity the backend needs, never
- * fetches the API itself and never learns a token — `instanceIdentity()` reads the
- * container's own environment here, on the server, exactly as the read path does.
+ * the whole point: the browser never holds the identity the backend needs, never fetches the
+ * API itself and never learns a token — the session cookie stays on this side of the wire,
+ * exactly as it does on the read path. A session that is gone mid-form is not a sentence on
+ * the form: the browser is sent to the sign-in screen, with the reason (`redirectToSignIn`).
  *
- * Every action answers with one sentence rather than throwing: a 401, a 403 and a
- * domain refusal all arrive as the same three types `lib/api` defines, and the form
- * shows what the backend said. A refusal that reached the browser as a stack trace
+ * Every action answers with one sentence rather than throwing: a 403 and a domain refusal
+ * arrive as the types `lib/api` defines, and the form shows what the backend said. A refusal that reached the browser as a stack trace
  * would be a refusal nobody reads.
  *
  * `revalidatePath` is what makes the board catch up: the page is rendered per request,
@@ -22,14 +22,15 @@ import { revalidatePath } from "next/cache";
 
 import {
   ApiFailure,
+  MfaRequired,
   NotPermitted,
   Unauthenticated,
   convertOpportunity,
   createOpportunity,
-  instanceIdentity,
   loseOpportunity,
   moveOpportunity,
 } from "@/lib/api";
+import { redirectToSignIn, sessionCookie } from "@/lib/session";
 
 /** What a form gets back: whether it worked, and the one sentence to show. */
 export interface ActionState {
@@ -40,7 +41,10 @@ export interface ActionState {
 /** The one sentence a failed action shows. Nothing here swallows a refusal. */
 function describe(error: unknown): string {
   if (error instanceof Unauthenticated) {
-    return "Sign in required.";
+    redirectToSignIn("expired");
+  }
+  if (error instanceof MfaRequired) {
+    redirectToSignIn("mfa");
   }
   if (error instanceof NotPermitted) {
     return error.message;
@@ -68,7 +72,7 @@ export async function newDeal(
   form: FormData,
 ): Promise<ActionState> {
   try {
-    const created = await createOpportunity(instanceIdentity(), {
+    const created = await createOpportunity(await sessionCookie(), {
       customerCode: field(form, "customer_code"),
       name: field(form, "name"),
       owner: field(form, "owner"),
@@ -94,7 +98,7 @@ export async function moveDeal(
 ): Promise<ActionState> {
   try {
     const moved = await moveOpportunity(
-      instanceIdentity(),
+      await sessionCookie(),
       field(form, "opportunity_id"),
       field(form, "to_stage"),
       stated(form, "reason"),
@@ -115,7 +119,7 @@ export async function loseDeal(
 ): Promise<ActionState> {
   try {
     const ended = await loseOpportunity(
-      instanceIdentity(),
+      await sessionCookie(),
       field(form, "opportunity_id"),
       field(form, "reason"),
     );
@@ -135,7 +139,7 @@ export async function convertDeal(
 ): Promise<ActionState> {
   try {
     const quotation = await convertOpportunity(
-      instanceIdentity(),
+      await sessionCookie(),
       field(form, "opportunity_id"),
       field(form, "number"),
       stated(form, "issued_on"),

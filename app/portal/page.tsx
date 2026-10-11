@@ -16,7 +16,7 @@
  *   payload, and a page cannot show what it was not given.
  */
 
-import { describeFailure, instanceIdentity } from "@/lib/api";
+import { sessionCookie, sessionFailure } from "@/lib/session";
 import { readPortal, readPortalDocuments, type PortalView } from "@/lib/portal";
 
 import { PortalWrites } from "./writes";
@@ -45,9 +45,9 @@ export default async function PortalPage() {
   let view: PortalView | null = null;
   let failure: { title: string; detail: string } | null = null;
   try {
-    view = readPortal(await readPortalDocuments(instanceIdentity()));
+    view = readPortal(await readPortalDocuments(await sessionCookie()));
   } catch (error) {
-    failure = describeFailure(error);
+    failure = sessionFailure(error);
   }
 
   return (

@@ -14,12 +14,11 @@
 
 import Link from "next/link";
 
-import { describeFailure, instanceIdentity, readDashboard } from "@/lib/api";
+import { readDashboard } from "@/lib/api";
 import { dashboardView, readAt, type DashboardView, type TileView } from "@/lib/dashboard";
+import { sessionCookie, sessionFailure } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
-
-const IDENTITY = instanceIdentity();
 
 function Notice({ title, detail }: { title: string; detail: string }) {
   return (
@@ -120,15 +119,16 @@ export default async function DashboardPage({
   searchParams: Promise<{ drill_down?: string; as_of?: string; start?: string }>;
 }) {
   const { drill_down: drillDown, as_of: asOf, start } = await searchParams;
+  const session = await sessionCookie();
   let view: DashboardView | null = null;
   let failure: { title: string; detail: string } | null = null;
   try {
     view = dashboardView(
-      await readDashboard(IDENTITY, { asOf, start, drillDown }),
+      await readDashboard(session, { asOf, start, drillDown }),
       drillDown,
     );
   } catch (error) {
-    failure = describeFailure(error);
+    failure = sessionFailure(error);
   }
 
   return (

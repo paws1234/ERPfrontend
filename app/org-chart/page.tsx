@@ -16,7 +16,8 @@
  * says so: a chart is only meaningful "as of" something, and the API refuses to assume.
  */
 
-import { describeFailure, instanceIdentity, readOrgChart } from "@/lib/api";
+import { readOrgChart } from "@/lib/api";
+import { sessionCookie, sessionFailure } from "@/lib/session";
 import {
   chartRows,
   chartSummary,
@@ -64,10 +65,11 @@ export default async function OrgChartPage({
   let failure: { title: string; detail: string } | null = null;
 
   try {
-    chart = await readOrgChart(instanceIdentity(), asOf);
+    chart = await readOrgChart(await sessionCookie(), asOf);
   } catch (error) {
-    // 401 asks for a session, 403 explains itself, anything else says what it was.
-    failure = describeFailure(error);
+    // A session that is gone sends the browser to the sign-in screen with the reason; a 403
+    // explains itself, and anything else says what it was.
+    failure = sessionFailure(error);
   }
 
   const summary = chart ? chartSummary(chart) : null;

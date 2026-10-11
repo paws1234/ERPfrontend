@@ -7,13 +7,8 @@
  * like every other screen and holds no data of its own.
  */
 
-import {
-  ApiFailure,
-  instanceIdentity,
-  NotPermitted,
-  readRfq,
-  Unauthenticated,
-} from "@/lib/api";
+import { ApiFailure, MfaRequired, NotPermitted, readRfq, Unauthenticated } from "@/lib/api";
+import { redirectToSignIn, sessionCookie } from "@/lib/session";
 import { buildComparison, comparisonCsv } from "@/lib/comparison";
 
 export const dynamic = "force-dynamic";
@@ -25,17 +20,15 @@ export async function GET(
   const { number } = await params;
   let csv: string;
   try {
-    csv = comparisonCsv(buildComparison(await readRfq(instanceIdentity(), number)));
+    csv = comparisonCsv(buildComparison(await readRfq(await sessionCookie(), number)));
   } catch (error) {
+    // A session that is gone is not a download: the browser is sent to the sign-in screen,
+    // which is the one thing an expired cookie can be told to do — never a stack trace.
+    if (error instanceof Unauthenticated) redirectToSignIn("expired");
+    if (error instanceof MfaRequired) redirectToSignIn("mfa");
     const detail = error instanceof Error ? error.message : String(error);
     const status =
-      error instanceof Unauthenticated
-        ? 401
-        : error instanceof NotPermitted
-          ? 403
-          : error instanceof ApiFailure
-            ? error.status
-            : 502;
+      error instanceof NotPermitted ? 403 : error instanceof ApiFailure ? error.status : 502;
     return new Response(detail, {
       status,
       headers: { "Content-Type": "text/plain; charset=utf-8" },
