@@ -21,7 +21,7 @@
 import { amount, type Money } from "./pos.ts";
 // Stated with its extension for the same reason as `./pos.ts`: a test loads this module
 // through node's own loader, not only through the bundler.
-import { request, type Identity } from "./api.ts";
+import { request, type SessionCookie } from "./api.ts";
 import type { components } from "./contract";
 import type { FieldState } from "./pipeline";
 
@@ -192,45 +192,45 @@ export function stated(value: FormDataEntryValue | null): string | undefined {
 }
 
 /** The supplier's own documents, read through the generated client. */
-export async function readPortalDocuments(identity: Identity): Promise<PortalDocuments> {
+export async function readPortalDocuments(session: SessionCookie): Promise<PortalDocuments> {
   const answer = await request<components["schemas"]["PortalDocumentsOut"]>(
     "/api/v1/portal/documents",
-    identity,
+    session,
   );
   return answer.documents;
 }
 
 /** Answer one RFQ. The response is the matrix's own record, one per supplier. */
 export async function syncPortalResponse(
-  identity: Identity,
+  session: SessionCookie,
   number: string,
   response: PortalResponse,
 ): Promise<components["schemas"]["PortalWriteOut"]> {
   return request<components["schemas"]["PortalWriteOut"]>(
     `/api/v1/portal/rfqs/${encodeURIComponent(number)}/responses`,
-    identity,
+    session,
     { method: "POST", body: JSON.stringify(response) },
   );
 }
 
 /** Take one purchase order on. */
 export function acknowledgeOrder(
-  identity: Identity,
+  session: SessionCookie,
   number: string,
 ): Promise<components["schemas"]["PortalWriteOut"]> {
   return request<components["schemas"]["PortalWriteOut"]>(
     `/api/v1/portal/orders/${encodeURIComponent(number)}/acknowledge`,
-    identity,
+    session,
     { method: "POST" },
   );
 }
 
 /** Submit an invoice — recorded as a draft, for the buyer to post and match. */
 export function submitInvoice(
-  identity: Identity,
+  session: SessionCookie,
   invoice: components["schemas"]["PortalInvoiceIn"],
 ): Promise<components["schemas"]["PortalWriteOut"]> {
-  return request<components["schemas"]["PortalWriteOut"]>("/api/v1/portal/invoices", identity, {
+  return request<components["schemas"]["PortalWriteOut"]>("/api/v1/portal/invoices", session, {
     method: "POST",
     body: JSON.stringify(invoice),
   });

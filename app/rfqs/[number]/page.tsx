@@ -15,7 +15,8 @@
 
 import Link from "next/link";
 
-import { instanceIdentity, readRfq, describeFailure } from "@/lib/api";
+import { readRfq } from "@/lib/api";
+import { sessionCookie, sessionFailure } from "@/lib/session";
 import {
   buildComparison,
   type Comparison,
@@ -165,9 +166,9 @@ export default async function RfqComparisonPage({
   let failure: { title: string; detail: string } | null = null;
 
   try {
-    comparison = buildComparison(await readRfq(instanceIdentity(), number));
+    comparison = buildComparison(await readRfq(await sessionCookie(), number));
   } catch (error) {
-    failure = describeFailure(error);
+    failure = sessionFailure(error);
   }
 
   return (

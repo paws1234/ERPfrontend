@@ -4,13 +4,13 @@
  * The till's writes: the sale, its lines, its tenders, its end, and the drawer.
  *
  * Server actions, for the reason the board's are: the browser never holds the identity
- * the backend needs and never calls the API itself — `instanceIdentity()` reads the
- * container's own environment here, on the server, exactly as the reads do.
+ * the backend needs and never calls the API itself — the session cookie is read here, on the
+ * server, exactly as the reads do. A session that is gone mid-basket sends the browser to the
+ * sign-in screen rather than printing a sentence on the till (`redirectToSignIn`).
  *
- * Every action answers with one sentence rather than throwing: a 401, a 403 and a
- * domain refusal all arrive as the same three types `lib/api` defines, and a refusal
- * **keeps the till exactly as it was** (`denied`), so a rejected tender does not take
- * the basket off the screen. What a step that worked answers with is the sale *after*
+ * Every other action answers with one sentence rather than throwing: a 403 and a domain
+ * refusal arrive as the words below, and a refusal **keeps the till exactly as it was**
+ * (`denied`), so a rejected tender does not take the basket off the screen. What a step that worked answers with is the sale *after*
  * it, which is the only way the till can know what its next step is working on — the
  * contract has no `GET` for an open sale.
  *
@@ -21,7 +21,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { ApiFailure, NotPermitted, Unauthenticated, instanceIdentity } from "@/lib/api";
+import { ApiFailure, MfaRequired, NotPermitted, Unauthenticated } from "@/lib/api";
+import { redirectToSignIn, sessionCookie } from "@/lib/session";
 import {
   closeShift,
   completeSale,
@@ -54,7 +55,10 @@ export interface TillState extends SaidState {
 /** The one sentence a refused action shows. Nothing here swallows a refusal. */
 function describe(error: unknown): string {
   if (error instanceof Unauthenticated) {
-    return "Sign in required.";
+    redirectToSignIn("expired");
+  }
+  if (error instanceof MfaRequired) {
+    redirectToSignIn("mfa");
   }
   if (error instanceof NotPermitted || error instanceof ApiFailure) {
     return error.message;
@@ -99,7 +103,7 @@ export async function newSale(
   form: FormData,
 ): Promise<TillState> {
   try {
-    const sale = await openSale(instanceIdentity(), {
+    const sale = await openSale(await sessionCookie(), {
       number: field(form, "number"),
       terminal: field(form, "terminal"),
       locationCode: field(form, "location_code"),
@@ -122,7 +126,7 @@ export async function scanSale(
 ): Promise<TillState> {
   try {
     const barcode = field(form, "barcode");
-    const sale = await scanItem(instanceIdentity(), field(form, "number"), {
+    const sale = await scanItem(await sessionCookie(), field(form, "number"), {
       barcode,
       basePrice: field(form, "base_price"),
       quantity: stated(form, "quantity"),
@@ -149,7 +153,7 @@ export async function tenderSale(
     return denied(previous, `'${tenderType}' is not a tender this till takes.`);
   }
   try {
-    const sale = await takeTender(instanceIdentity(), field(form, "number"), {
+    const sale = await takeTender(await sessionCookie(), field(form, "number"), {
       tenderType,
       amount: field(form, "amount"),
       reference: stated(form, "reference"),
@@ -170,7 +174,7 @@ export async function finishSale(
   form: FormData,
 ): Promise<TillState> {
   try {
-    const sale = await completeSale(instanceIdentity(), field(form, "number"));
+    const sale = await completeSale(await sessionCookie(), field(form, "number"));
     revalidatePath("/pos");
     return stepped(previous, `Sale ${sale.number} is ${sale.status}.`, { sale });
   } catch (error) {
@@ -184,7 +188,7 @@ export async function cancelSale(
   form: FormData,
 ): Promise<TillState> {
   try {
-    const sale = await voidSale(instanceIdentity(), field(form, "number"), field(form, "reason"));
+    const sale = await voidSale(await sessionCookie(), field(form, "number"), field(form, "reason"));
     revalidatePath("/pos");
     return stepped(previous, `Sale ${sale.number} is ${sale.status}.`, { sale });
   } catch (error) {
@@ -203,7 +207,7 @@ export async function printReceipt(
   form: FormData,
 ): Promise<TillState> {
   try {
-    const receipt = await saleReceipt(instanceIdentity(), field(form, "number"));
+    const receipt = await saleReceipt(await sessionCookie(), field(form, "number"));
     return stepped(previous, "The receipt, as the API states it.", { receipt });
   } catch (error) {
     return denied(previous, describe(error));
@@ -216,7 +220,7 @@ export async function openTill(
   form: FormData,
 ): Promise<SaidState> {
   try {
-    const shift = await openShift(instanceIdentity(), {
+    const shift = await openShift(await sessionCookie(), {
       terminal: field(form, "terminal"),
       openingFloat: stated(form, "opening_float"),
       on: stated(form, "on"),
@@ -234,7 +238,7 @@ export async function closeTill(
   form: FormData,
 ): Promise<SaidState> {
   try {
-    const shift = await closeShift(instanceIdentity(), field(form, "shift_id"), {
+    const shift = await closeShift(await sessionCookie(), field(form, "shift_id"), {
       countedCash: field(form, "counted_cash"),
       reason: stated(form, "reason"),
     });
@@ -261,7 +265,7 @@ export async function moveDrawer(
     return { ok: false, message: `'${movementType}' is not a drawer movement this till records.` };
   }
   try {
-    const movement = await recordDrawerMovement(instanceIdentity(), {
+    const movement = await recordDrawerMovement(await sessionCookie(), {
       terminal: field(form, "terminal"),
       movementType,
       amount: field(form, "amount"),
@@ -294,7 +298,7 @@ export async function statePolicy(
   }
   try {
     const company = await setCashDrawerPolicy(
-      instanceIdentity(),
+      await sessionCookie(),
       choice === "" ? null : choice === "yes",
     );
     revalidatePath("/pos");
@@ -343,7 +347,7 @@ export async function replayQueue(
   const locationCode = field(form, "location_code");
   try {
     const answer = await syncQueuedSales(
-      instanceIdentity(),
+      await sessionCookie(),
       syncBody(terminal, locationCode, field(form, "oversell_allowed") === "true", sales),
       // The terminal names the batch by the sale it starts with, so a resend of the same
       // queue is the same batch — and the numbers inside it are checked as well.

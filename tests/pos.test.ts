@@ -37,7 +37,8 @@ import {
   type PosSale,
 } from "../lib/pos.ts";
 
-const IDENTITY = { companyId: "11111111-1111-1111-1111-111111111111", actor: "alice" };
+/** The session cookie: the whole of what a call says about who is calling (T-7.AUTH.02). */
+const SESSION = "erpv1_session=abc123";
 
 /** A sale as the POS endpoints state one, with nothing on it to begin with. */
 function sale(overrides: Partial<PosSale> = {}): PosSale {
@@ -378,9 +379,9 @@ test("a Z-report reads exactly, nested as the API states it", () => {
   assert.deepEqual(rows[4], { label: "by_terminal.0.sales", kind: "text", text: "3" });
 });
 
-test("a sale is rung up on the contract's own path, with the company it is for", async () => {
+test("a sale is rung up on the contract's own path, under the session it is for", async () => {
   const calls = stubFetch(201, sale());
-  await openSale(IDENTITY, {
+  await openSale(SESSION, {
     number: "POS-1",
     terminal: "TILL-1",
     locationCode: "MAIN",
@@ -391,8 +392,8 @@ test("a sale is rung up on the contract's own path, with the company it is for",
   assert.equal(calls[0].url, "http://localhost:8000/api/v1/pos/sales");
   assert.equal(calls[0].init.method, "POST");
   const headers = calls[0].init.headers as Record<string, string>;
-  assert.equal(headers["X-Company-Id"], IDENTITY.companyId);
-  assert.equal(headers["X-Actor"], IDENTITY.actor);
+  assert.equal(headers["Cookie"], SESSION, "the session cookie is the whole identity");
+  assert.equal(headers["X-Actor"], undefined, "nothing is asserted about the caller, by them");
   assert.deepEqual(JSON.parse(String(calls[0].init.body)), {
     number: "POS-1",
     terminal: "TILL-1",
@@ -403,10 +404,10 @@ test("a sale is rung up on the contract's own path, with the company it is for",
 
 test("scanning, tendering and completing speak the sale's own number", async () => {
   const calls = stubFetch(200, sale());
-  await scanItem(IDENTITY, "POS/1", { barcode: "BC-1", basePrice: "12.50", quantity: "2" });
-  await takeTender(IDENTITY, "POS/1", { tenderType: "card", amount: "25.00" });
-  await completeSale(IDENTITY, "POS/1");
-  await voidSale(IDENTITY, "POS/1", "customer walked away");
+  await scanItem(SESSION, "POS/1", { barcode: "BC-1", basePrice: "12.50", quantity: "2" });
+  await takeTender(SESSION, "POS/1", { tenderType: "card", amount: "25.00" });
+  await completeSale(SESSION, "POS/1");
+  await voidSale(SESSION, "POS/1", "customer walked away");
 
   assert.deepEqual(
     calls.map((call) => call.url),
@@ -433,7 +434,7 @@ test("scanning, tendering and completing speak the sale's own number", async () 
 
 test("the receipt comes back unwrapped, and a refusal is the client's own type", async () => {
   stubFetch(200, { receipt: { number: "POS-1", total: "115.000000" } });
-  assert.deepEqual(await saleReceipt(IDENTITY, "POS-1"), {
+  assert.deepEqual(await saleReceipt(SESSION, "POS-1"), {
     number: "POS-1",
     total: "115.000000",
   });
@@ -442,7 +443,7 @@ test("the receipt comes back unwrapped, and a refusal is the client's own type",
     error: { code: "forbidden", message: "'alice' may not 'pos.tender'", details: null },
   });
   await assert.rejects(
-    () => takeTender(IDENTITY, "POS-1", { tenderType: "cash", amount: "10.00" }),
+    () => takeTender(SESSION, "POS-1", { tenderType: "cash", amount: "10.00" }),
     (error: unknown) => {
       assert.ok(error instanceof NotPermitted);
       assert.equal(error.message, "'alice' may not 'pos.tender'");
@@ -454,10 +455,10 @@ test("the receipt comes back unwrapped, and a refusal is the client's own type",
 
 test("the shift, the drawer and the reports are read on their own paths", async () => {
   const calls = stubFetch(200, { id: "shift-1", report: {} });
-  await currentShift(IDENTITY, "TILL 1");
-  await shiftReport(IDENTITY, "shift-1");
-  await dayReport(IDENTITY, "2026-10-07");
-  await setCashDrawerPolicy(IDENTITY, null);
+  await currentShift(SESSION, "TILL 1");
+  await shiftReport(SESSION, "shift-1");
+  await dayReport(SESSION, "2026-10-07");
+  await setCashDrawerPolicy(SESSION, null);
 
   assert.deepEqual(
     calls.map((call) => call.url),

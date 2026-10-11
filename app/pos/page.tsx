@@ -7,10 +7,12 @@
  * (`/pos?terminal=TILL-1`) because a shift is read **per terminal**, and a page that
  * baked one in would be a page showing some other shop's drawer.
  *
- * Identity comes from `instanceIdentity()`, the one place runtime identity is read.
+ * Identity is the request's own session cookie (`./session`), never an actor this instance
+ * asserts about itself.
  */
 
-import { companyProfile, describeFailure, instanceIdentity } from "@/lib/api";
+import { companyProfile } from "@/lib/api";
+import { sessionCookie, sessionFailure } from "@/lib/session";
 import {
   currentShift,
   dayReport,
@@ -40,7 +42,7 @@ async function read<T>(call: () => Promise<T>): Promise<Read<T>> {
   try {
     return { value: await call(), failure: null };
   } catch (error) {
-    return { value: null, failure: describeFailure(error) };
+    return { value: null, failure: sessionFailure(error) };
   }
 }
 
@@ -74,17 +76,17 @@ export default async function PosPage({
   const { terminal: chosenTerminal, on: chosenDay } = await searchParams;
   const terminal = chosenTerminal?.trim() ?? "";
   const day = chosenDay?.trim() ?? "";
-  const identity = instanceIdentity();
+  const session = await sessionCookie();
 
   // Independent reads, so they are asked for together rather than one after another.
   const [company, shift, takings] = await Promise.all([
-    read(() => companyProfile(identity)),
-    terminal === "" ? unasked<PosShift>() : read(() => currentShift(identity, terminal)),
-    day === "" ? unasked<ZReport>() : read(() => dayReport(identity, day)),
+    read(() => companyProfile(session)),
+    terminal === "" ? unasked<PosShift>() : read(() => currentShift(session, terminal)),
+    day === "" ? unasked<ZReport>() : read(() => dayReport(session, day)),
   ]);
 
   const trading = shift.value;
-  const shiftZ = trading ? await read(() => shiftReport(identity, trading.id)) : unasked<ZReport>();
+  const shiftZ = trading ? await read(() => shiftReport(session, trading.id)) : unasked<ZReport>();
 
   return (
     <section>
