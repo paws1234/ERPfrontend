@@ -674,7 +674,12 @@ export interface paths {
         };
         /**
          * Health
-         * @description Liveness, and the contract version this instance publishes.
+         * @description Liveness: the process is up and serving — nothing about its dependencies.
+         *
+         *     A liveness probe must not fail for a reason a restart cannot fix, so this touches no
+         *     database and answers as long as the process runs. Readiness is the other half of
+         *     T-8.OBS.01's split (`/api/v1/ready`), and it is the one a load balancer should ask
+         *     before sending traffic.
          */
         get: operations["health_api_v1_health_get"];
         put?: never;
@@ -706,6 +711,32 @@ export interface paths {
          * @description Post one balanced journal entry — retry-safe by its idempotency key.
          */
         post: operations["post_entry_api_v1_journal_entries_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Metrics
+         * @description The counters this process reports, in Prometheus' text exposition format.
+         *
+         *     `metrics_enabled=false` answers `404` rather than serving an empty document: a scrape
+         *     that is switched off should look switched off, and a `404` is what an operator's scrape
+         *     config will report as a failure to collect. The registry is this process's own
+         *     (`app/observability.py` states the ceiling): no cross-process aggregation, so a scrape
+         *     reads the web container's numbers and the worker's separately.
+         */
+        get: operations["metrics_api_v1_metrics_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1418,6 +1449,31 @@ export interface paths {
          *     the customer's back.
          */
         post: operations["reprice_api_v1_quotations__number__reprice_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ready
+         * @description Readiness: the database answers and the schema is at the revision this build expects.
+         *
+         *     Answers `503` (not `500`) when it is not ready, because "not ready yet" is a state a
+         *     deployment moves out of, and a load balancer needs the distinction. The body names what
+         *     is not ready and never why — the exception is in the log, and this route is public
+         *     (T-8.OBS.01, `SECURITY-REVIEW.md`'s access matrix).
+         */
+        get: operations["ready_api_v1_ready_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3125,6 +3181,32 @@ export interface components {
              * Format: date
              */
             valid_until: string;
+        };
+        /**
+         * ReadinessCheckOut
+         * @description One dependency, its state, and a reason safe to publish (T-8.OBS.01).
+         */
+        ReadinessCheckOut: {
+            /** Detail */
+            detail: string;
+            /** Name */
+            name: string;
+            /** Ok */
+            ok: boolean;
+            /** Revision */
+            revision?: string | null;
+        };
+        /**
+         * ReadinessOut
+         * @description What `/api/v1/ready` answers: whether this instance can serve, and each check.
+         */
+        ReadinessOut: {
+            /** Checks */
+            checks: components["schemas"]["ReadinessCheckOut"][];
+            /** Status */
+            status: string;
+            /** Version */
+            version: string;
         };
         /** ReportIn */
         ReportIn: {
@@ -6617,6 +6699,89 @@ export interface operations {
             };
         };
     };
+    metrics_api_v1_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Prometheus text format */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
     new_opportunity_api_v1_opportunities_post: {
         parameters: {
             query?: never;
@@ -9479,6 +9644,98 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+        };
+    };
+    ready_api_v1_ready_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description the instance can serve */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessOut"];
+                };
+            };
+            /** @description The request could not be understood */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller is not identified */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The caller may not do this */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The company, document or route does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request clashes with one already made */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The request did not match the contract, or a domain rule refused it */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description The platform failed unexpectedly */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOut"];
+                };
+            };
+            /** @description the instance cannot serve yet */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessOut"];
                 };
             };
         };
