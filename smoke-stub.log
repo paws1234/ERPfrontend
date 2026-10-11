@@ -1,5 +1,0 @@
-stub backend on :8000 mode=forbidden
-GET /api/v1/auth/session cookie=erpv1_session=stub-token
-GET /api/v1/health cookie=erpv1_session=stub-token
-GET /api/v1/companies/current cookie=erpv1_session=stub-token
-GET /api/v1/journal-entries?limit=10&offset=0 cookie=erpv1_session=stub-token

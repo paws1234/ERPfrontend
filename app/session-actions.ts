@@ -18,7 +18,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { ApiFailure, MfaRequired, NotPermitted, Unauthenticated } from "@/lib/api";
+import { describeFailure, MfaRequired } from "@/lib/api";
 import { signIn, signInHref, signOut, switchCompany, verifyMfa } from "@/lib/session";
 
 /** What the sign-in form is waiting for: the next thing to ask, and what to say. */
@@ -34,15 +34,13 @@ export interface SwitchState {
   message: string | null;
 }
 
-/** The one sentence a refused action shows. Nothing here swallows a refusal. */
+/**
+ * The one sentence a refused action shows. Nothing here swallows a refusal, and the wording is
+ * the backend's own when it stated one — a mistyped password has to read "those credentials were
+ * not accepted", not a sentence about signing in that the person is already doing.
+ */
 function describe(error: unknown): string {
-  if (error instanceof Unauthenticated) {
-    return "Sign in required.";
-  }
-  if (error instanceof MfaRequired || error instanceof NotPermitted || error instanceof ApiFailure) {
-    return error.message;
-  }
-  return error instanceof Error ? error.message : String(error);
+  return describeFailure(error).detail;
 }
 
 /** A trimmed form field. A blank one is the empty string, never `undefined`. */

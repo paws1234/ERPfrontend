@@ -18,9 +18,10 @@
  *    own image
  * 6. the client's 401/403 handling is what the shell relies on, and every test in
  *    `tests/` passes — including the comparative statement matrix (T-2.PROC.04)
- * 7. the identity the API trusts stays on the server (T-6.HARD.02): `lib/api.ts`,
- *    which asserts `X-Actor`/`X-Company-Id`, is imported only from server code,
- *    and no `NEXT_PUBLIC_` value is inlined into the browser bundle
+ * 7. the identity the API trusts stays on the server (T-6.HARD.02, and T-7.WEB.01's session
+ *    cookie): `lib/api.ts` — which carries the `Cookie` the server read for the caller, and
+ *    asserts no actor of its own — is imported only from server code, and no `NEXT_PUBLIC_`
+ *    value is inlined into the browser bundle
  */
 
 import { execFileSync } from "node:child_process";
@@ -158,11 +159,11 @@ if (
   console.log("401 asks for a session and 403 is explained, both without breaking the shell");
 }
 
-// 7 — the identity the API trusts stays on the server (T-6.HARD.02)
+// 7 — the identity the API trusts stays on the server (T-6.HARD.02, T-7.WEB.01)
 //
-// The API takes `X-Actor` and `X-Company-Id` from the request, so an identity asserted by a
-// browser is an identity anyone can claim. `lib/api.ts` is where those headers are set: it must
-// stay importable only from the server, and no value may be inlined into the browser bundle.
+// Identity is the session cookie the backend resolves, and the browser holds none of it in a
+// form it can state about itself. `lib/api.ts` is where the cookie travels: it must stay
+// importable only from the server, and no value may be inlined into the browser bundle.
 function sourceFiles(dir) {
   return readdirSync(resolve(root, dir), { withFileTypes: true }).flatMap((entry) => {
     const path = `${dir}/${entry.name}`;
